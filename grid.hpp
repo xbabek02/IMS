@@ -14,14 +14,14 @@ using namespace std;
 class Grid
 {
 private:
-    unsigned width = 120;
-    unsigned heigth = 30;
+    int width = 120;
+    int heigth = 30;
     vector<char> field;
 
 public:
     Grid(/* args */);
     void Display();
-    char GetAtCors(unsigned x, unsigned y);
+    char GetAtCors(int x, int y);
 
     ~Grid();
 };

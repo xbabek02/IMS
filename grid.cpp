@@ -24,7 +24,7 @@ void Grid::Display()
     }
 }
 
-inline char Grid::GetAtCors(unsigned x, unsigned y)
+inline char Grid::GetAtCors(int x, int y)
 {
     return field.at(y * width + x);
 }
