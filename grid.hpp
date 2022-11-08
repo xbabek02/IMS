@@ -5,23 +5,28 @@
 #define BOMBER 'B'
 #define AIR ' '
 
-#define CORS(x, y) field.at(y *width + x)
-
 #include <vector>
+
+#include "distance.hpp"
 
 using namespace std;
 
 class Grid
 {
 private:
-    int width = 120;
-    int heigth = 30;
+    int width = 30;
+    int length = 120;
+    vector<int> center;
     vector<char> field;
 
 public:
-    Grid(/* args */);
+    Grid(int length, int width);
     void Display();
-    char GetAtCors(int x, int y);
+    char GetAt(int x, int y);
+    void SetAt(int x, int y, char c);
+
+    void DrawBattlefield(int radius, vector<int> center);
+    void DrawTargetZone(int radius, vector<int> center);
 
     ~Grid();
 };

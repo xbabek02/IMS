@@ -9,6 +9,16 @@
 #include "fighter.hpp"
 #include "grid.hpp"
 
+enum SimulationState
+{
+    PreStart,
+    NotDetected,
+    AirportTakeOf,
+    Combat,
+    TargetBombarded,
+    End
+};
+
 class Simulation
 {
 private:
@@ -24,13 +34,22 @@ private:
     int target_radius;
     int battlefield_radius;
 
+    int sim_width;
+    int sim_length;
+    int sim_center;
+
+    SimulationState state = PreStart;
+
+    void InitAttackers();
+
 public:
     Grid ToGrid();
-    Simulation();
-    void AddBomber(Bomber Bomber);
-    void AddAttacker(Fighter fighter);
-    void AddDefender(Fighter fighter);
+    Simulation(int battlefield_radius);
+    void AddBomber(const Bomber &bomber);
+    void AddAttacker(const Fighter &fighter);
+    void AddDefender(const Fighter &fighter);
     void LogStatus();
+    void Run();
     ~Simulation();
 };
 

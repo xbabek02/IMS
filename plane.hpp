@@ -13,6 +13,7 @@ enum Team
 
 enum PlaneState
 {
+    Escorting,
     Scouting,
     Evading,
     Chasing,
@@ -34,16 +35,18 @@ enum Directions
 
 class Plane : public WithId
 {
-protected:
+public:
     std::vector<int> sight;
     int fuel;
 
     Directions direction;
+    bool turned_last_iteration; // has to go forward the next
     PlaneState state;
-    Team team;
 
     std::string pilotName;
     int number_of_battles;
+    Team team;
+
     int takedowns = 0;
 
     std::vector<int> position;
