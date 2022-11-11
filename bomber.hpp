@@ -8,7 +8,10 @@ class Bomber : public Plane
 private:
     /* data */
 public:
-    Bomber(std::string name, int battles);
+    Bomber(std::string name, int battles, Simulation *simulation);
+
+    Bomber Iterate(SimulationState state);
+
     ~Bomber();
 };
 

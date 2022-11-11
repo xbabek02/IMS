@@ -8,16 +8,8 @@
 #include "bomber.hpp"
 #include "fighter.hpp"
 #include "grid.hpp"
-
-enum SimulationState
-{
-    PreStart,
-    NotDetected,
-    AirportTakeOf,
-    Combat,
-    TargetBombarded,
-    End
-};
+#include "distance.hpp"
+#include "enums.hpp"
 
 class Simulation
 {
@@ -26,6 +18,8 @@ private:
     std::vector<Fighter> attackers;
     std::vector<Fighter> defenders;
 
+    std::vector<Plane> not_active;
+
     int iteration = 0;
 
     std::vector<int> airport_pos;
@@ -33,14 +27,20 @@ private:
 
     int target_radius;
     int battlefield_radius;
+    std::vector<int> center;
 
     int sim_width;
     int sim_length;
-    int sim_center;
+
+    int bombs_dropped = 0;
+    int bombs_goal = 100;
 
     SimulationState state = PreStart;
 
     void InitAttackers();
+    bool InsideBoundary(const Plane &plane) const;
+    bool AnyAttackerInsideBoundary();
+    void Iterate();
 
 public:
     Grid ToGrid();
@@ -50,6 +50,8 @@ public:
     void AddDefender(const Fighter &fighter);
     void LogStatus();
     void Run();
+    std::vector<Fighter> &ReturnAllEnemyFighters(const Plane &plane);
+
     ~Simulation();
 };
 

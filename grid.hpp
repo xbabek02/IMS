@@ -27,6 +27,7 @@ public:
 
     void DrawBattlefield(int radius, vector<int> center);
     void DrawTargetZone(int radius, vector<int> center);
+    void DrawAirport(vector<int> position);
 
     ~Grid();
 };

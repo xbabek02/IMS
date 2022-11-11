@@ -79,13 +79,13 @@ void ParseInput(string filepath, Simulation &s)
         switch (state)
         {
         case 'B':
-            s.AddBomber(Bomber(get<0>(res), get<1>(res)));
+            s.AddBomber(Bomber(get<0>(res), get<1>(res), &s));
             break;
         case 'D':
-            s.AddDefender(Fighter(get<0>(res), get<1>(res), Team::Defenders));
+            s.AddDefender(Fighter(get<0>(res), get<1>(res), Team::Defenders, &s));
             break;
         case 'A':;
-            s.AddAttacker(Fighter(get<0>(res), get<1>(res), Team::Attackers));
+            s.AddAttacker(Fighter(get<0>(res), get<1>(res), Team::Attackers, &s));
         default:
             break;
         }
@@ -100,7 +100,7 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    Simulation simulation(50);
+    Simulation simulation(15);
     ParseInput(string(argv[1]), simulation);
 
     simulation.LogStatus();

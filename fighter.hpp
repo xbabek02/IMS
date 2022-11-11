@@ -9,8 +9,10 @@ private:
     int ammo_cnt;
 
 public:
-    Fighter(std::string name, int battles, Team team);
+    Fighter(std::string name, int battles, Team team, Simulation *simulation);
     ~Fighter();
+
+    Fighter Iterate(SimulationState state);
 };
 
 #endif

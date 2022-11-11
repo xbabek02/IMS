@@ -1,13 +1,13 @@
 #include "grid.hpp"
 #include <iostream>
 
-Grid::Grid(int length, int width) : length(length), width(width)
+Grid::Grid(int length, int width) : width(width), length(length)
 {
     for (int y = 0; y < width; y++)
     {
         for (int x = 0; x < length; x++)
         {
-            field.push_back('.');
+            field.push_back(' ');
         }
     }
 }
@@ -79,10 +79,6 @@ void Grid::DrawTargetZone(int radius, vector<int> center)
 
     x_end = y_end = (center[0] + radius + boundary);
 
-    int inner_square_size = round(sqrt(2) * radius);
-    int inner_square_x = center[0] - inner_square_size / 2 + boundary;
-    int inner_square_y = center[1] - inner_square_size / 2 + boundary;
-
     SetAt(center[0], center[1], 'C');
 
     for (; x_start < x_end; x_start++)
@@ -101,6 +97,11 @@ void Grid::DrawTargetZone(int radius, vector<int> center)
             }
         }
     }
+}
+
+void Grid::DrawAirport(vector<int> position)
+{
+    SetAt(position[0], position[1], 'X');
 }
 
 Grid::~Grid()

@@ -3,39 +3,15 @@
 
 #include <vector>
 #include <string>
+
 #include "withid.hpp"
+#include "enums.hpp"
 
-enum Team
-{
-    Attackers,
-    Defenders
-};
-
-enum PlaneState
-{
-    Escorting,
-    Scouting,
-    Evading,
-    Chasing,
-    Retreating,
-    OutOfFight
-};
-
-enum Directions
-{
-    Up,
-    UpLeft,
-    Left,
-    DownLeft,
-    Down,
-    DownRight,
-    Right,
-    UpRight,
-};
+class Simulation;
 
 class Plane : public WithId
 {
-public:
+protected:
     std::vector<int> sight;
     int fuel;
 
@@ -51,8 +27,18 @@ public:
 
     std::vector<int> position;
 
+    Simulation *simulation;
+
+    Plane *focused; // for state events (escorted plane, chased plane ...)
+
 public:
-    Plane(std::string name, int battles, Team team);
+    Plane(std::string name, int battles, Team team, Simulation *simulation);
+    std::vector<int> GetPosition() const;
+    bool GetActive() const;
+    Team GetTeam() const;
+
+    Plane Iterate(SimulationState state);
+
     ~Plane();
 };
 
