@@ -17,7 +17,7 @@ protected:
 
     Directions direction;
     bool turned_last_iteration; // has to go forward the next
-    PlaneState state;
+    PlaneState state = PlaneState::PreLauch;
 
     std::string pilotName;
     int number_of_battles;
@@ -29,13 +29,16 @@ protected:
 
     Simulation *simulation;
 
-    Plane *focused; // for state events (escorted plane, chased plane ...)
+    Plane *target; // for state events (escorted plane, chased plane ...)
 
 public:
     Plane(std::string name, int battles, Team team, Simulation *simulation);
     std::vector<int> GetPosition() const;
     bool GetActive() const;
     Team GetTeam() const;
+    void SetPosition(std::vector<int> pos);
+    void SetState(PlaneState state);
+    void SetTarget(Plane *plane);
 
     Plane Iterate(SimulationState state);
 

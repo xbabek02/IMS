@@ -10,6 +10,7 @@
 #include "grid.hpp"
 #include "distance.hpp"
 #include "enums.hpp"
+#include <unistd.h>
 
 class Simulation
 {
@@ -35,7 +36,7 @@ private:
     int bombs_dropped = 0;
     int bombs_goal = 100;
 
-    SimulationState state = PreStart;
+    SimulationState state = SimulationState::PreStart;
 
     void InitAttackers();
     bool InsideBoundary(const Plane &plane) const;

@@ -1,24 +1,28 @@
 #include "grid.hpp"
-#include <iostream>
 
-Grid::Grid(int length, int width) : width(width), length(length)
+Grid::Grid(int size) : size(size)
 {
-    for (int y = 0; y < width; y++)
+    for (int y = 0; y < size; y++)
     {
-        for (int x = 0; x < length; x++)
+        for (int x = 0; x < size; x++)
         {
             field.push_back(' ');
         }
     }
 }
 
+int Grid::GetSize() const
+{
+    return size;
+}
+
 void Grid::Display()
 {
-    for (int y = 0; y < width; y++)
+    for (int y = 0; y < size; y++)
     {
-        for (int x = 0; x < length; x++)
+        for (int x = 0; x < size; x++)
         {
-            cout << GetAt(x, y);
+            cout << GetAt(x, y) << "  ";
         }
         cout << endl;
     }
@@ -26,12 +30,12 @@ void Grid::Display()
 
 inline char Grid::GetAt(int x, int y)
 {
-    return field.at(y * length + x);
+    return field.at(y * size + x);
 }
 
 inline void Grid::SetAt(int x, int y, char c)
 {
-    field.at(y * length + x) = c;
+    field.at(y * size + x) = c;
 }
 
 void Grid::DrawBattlefield(int radius, vector<int> center)
@@ -101,7 +105,7 @@ void Grid::DrawTargetZone(int radius, vector<int> center)
 
 void Grid::DrawAirport(vector<int> position)
 {
-    SetAt(position[0], position[1], 'X');
+    SetAt(position[0], position[1], AIRPORT);
 }
 
 Grid::~Grid()

@@ -2,10 +2,11 @@
 
 Simulation::Simulation(int battlefield_radius) : battlefield_radius(battlefield_radius)
 {
+    sim_length = sim_width = battlefield_radius * 2 + 50;
     center = {sim_length / 2, sim_width / 2, 0};
-    sim_length = sim_width = battlefield_radius * 2 + 100;
     target_pos.assign({sim_length / 2, sim_width / 2, 0});
     target_radius = battlefield_radius * 2 / 15;
+    airport_pos = {center[0] + battlefield_radius / 5, center[1] + battlefield_radius / 3};
 }
 
 Simulation::~Simulation()
@@ -40,10 +41,8 @@ void Simulation::Run()
     {
         switch (state)
         {
-        case PreStart:
+        case SimulationState::PreStart:
             InitAttackers();
-            ToGrid().Display();
-            exit(0);
             state = NotDetected;
             break;
 
@@ -75,22 +74,104 @@ void Simulation::Run()
         default:
             break;
         }
-    }
 
-    auto grid = ToGrid();
-    grid.Display();
+        ToGrid().Display();
+        // !!!!!!!!!!!!!!!!!!!!!!!!!
+        exit(0);
+        // !!!!!!!!!!!!!!!!!!!!!!!!!
+        sleep(0.5);
+        cout << "\033[2J\033[1;1H";
+    }
 }
 
 void Simulation::InitAttackers()
 {
-    int offset_from_border = 5;
-    int planes_in_formation = 9;
-    int boundary = 4;
-    int number_of_formations = bombers.size() % 0 ? bombers.size() / 9 : bombers.size() / 9 + 1;
-    int rows = planes_in_formation /= 2;
+    // PARAMETERS FOR FORMATION
 
-    // center of simulation , down the bottom, then point to the most front plane
-    int first_plane_y = center[1] + sim_width - offset_from_border - boundary * rows;
+    int offset_from_border = 5;
+    int planes_in_formation = bombers.size();
+    int boundary_y = 2; // 500m between planes
+    int boundary_x = 5;
+    /*int number_of_formations = ((bombers.size() % planes_in_formation) == 0
+                                    ? bombers.size() / planes_in_formation
+                                    : bombers.size() / planes_in_formation + 1);*/
+    int rows = planes_in_formation / 2;
+    int escort_offset = 2;
+
+    // center of the simulation width
+    int x = center.at(0);
+    // down the bottom, then point to the most front plane
+    int y = sim_width - offset_from_border - boundary_y * rows + 1;
+
+    size_t bomber_counter = 0;
+    size_t escort_counter = 0;
+
+    bombers.at(bomber_counter).SetPosition({x, y, rand() % 16 + 20});
+    bombers.at(bomber_counter).SetState(PlaneState::FlyingToTarget);
+
+    // assign escort
+    if (escort_counter < attackers.size())
+    {
+        auto position = bombers.at(bomber_counter).GetPosition();
+        position[0] -= escort_offset;
+        position[2] += 2;
+
+        attackers[escort_counter].SetPosition(position);
+        attackers[escort_counter].Escort(&bombers.at(bomber_counter));
+        escort_counter++;
+    }
+
+    bomber_counter++;
+
+    for (int i = 0; i < (planes_in_formation / 2); i++)
+    {
+        int offset_y = (i + 1) * boundary_y;
+        int offset_x = (i + 1) * boundary_x;
+
+        // left
+        if (bomber_counter < bombers.size())
+        {
+            Bomber &bomber = bombers.at(bomber_counter);
+            bomber.SetPosition({x - offset_x, y + offset_y, rand() % 16 + 20});
+            bomber.SetState(PlaneState::FlyingToTarget);
+
+            // assign escort
+            if (escort_counter < attackers.size())
+            {
+                auto position = bomber.GetPosition();
+                position[0] -= escort_offset;
+                position[2] += 2;
+
+                attackers[escort_counter].SetPosition(position);
+                attackers[escort_counter].Escort(&bomber);
+                escort_counter++;
+            }
+
+            bomber_counter++;
+        }
+
+        // right
+        if (bomber_counter < bombers.size())
+        {
+            Bomber &bomber = bombers.at(bomber_counter);
+            bomber.SetPosition({x + offset_x, y + offset_y, rand() % 16 + 20});
+            bomber.SetState(PlaneState::FlyingToTarget);
+
+            // assign escort
+            if (escort_counter < attackers.size())
+            {
+                auto position = bomber.GetPosition();
+                position[0] += escort_offset;
+                position[2] += 2;
+
+                attackers[escort_counter].SetPosition(position);
+                attackers[escort_counter].Escort(&bomber);
+                escort_counter++;
+            }
+
+            bomber_counter++;
+        }
+    }
 }
 
 bool Simulation::InsideBoundary(const Plane &plane) const
@@ -180,8 +261,29 @@ std::vector<Fighter> &Simulation::ReturnAllEnemyFighters(const Plane &plane)
 
 Grid Simulation::ToGrid()
 {
-    Grid grid(sim_length, sim_width);
+    Grid grid(sim_length);
     grid.DrawBattlefield(battlefield_radius, {sim_length / 2, sim_width / 2, 0});
     grid.DrawTargetZone(target_radius, target_pos);
+    grid.DrawAirport(airport_pos);
+
+    for (auto bomber : bombers)
+    {
+        auto position = bomber.GetPosition();
+        if (bomber.GetActive())
+            grid.SetAt(position[0], position[1], BOMBER);
+    }
+    for (auto attacker : attackers)
+    {
+        auto position = attacker.GetPosition();
+        if (attacker.GetActive())
+            grid.SetAt(position[0], position[1], ATTACKER);
+    }
+    for (auto defender : defenders)
+    {
+        auto position = defender.GetPosition();
+        if (defender.GetActive())
+            grid.SetAt(position[0], position[1], DEFENDER);
+    }
+
     return grid;
 }

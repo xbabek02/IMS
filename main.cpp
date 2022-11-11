@@ -100,12 +100,14 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    Simulation simulation(15);
+    Simulation simulation(50);
     ParseInput(string(argv[1]), simulation);
 
     simulation.LogStatus();
 
     simulation.Run();
+
+
 
     return 0;
 }

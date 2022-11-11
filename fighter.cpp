@@ -8,6 +8,12 @@ Fighter Fighter::Iterate(SimulationState state)
 {
 }
 
+void Fighter::Escort(Bomber *bomber)
+{
+    SetState(Escorting);
+    SetTarget(bomber);
+}
+
 Fighter::~Fighter()
 {
 }
