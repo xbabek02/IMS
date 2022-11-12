@@ -48,10 +48,12 @@ void Simulation::Run()
 
         case NotDetected:
             Iterate();
+            /*
             if (AnyAttackerInsideBoundary())
             {
                 state = Combat;
             }
+            */
             break;
 
         case Combat:
@@ -76,10 +78,7 @@ void Simulation::Run()
         }
 
         ToGrid().Display();
-        // !!!!!!!!!!!!!!!!!!!!!!!!!
-        exit(0);
-        // !!!!!!!!!!!!!!!!!!!!!!!!!
-        sleep(0.5);
+        usleep(100000);
         cout << "\033[2J\033[1;1H";
     }
 }
@@ -117,7 +116,7 @@ void Simulation::InitAttackers()
         position[2] += 2;
 
         attackers[escort_counter].SetPosition(position);
-        attackers[escort_counter].Escort(&bombers.at(bomber_counter));
+        attackers[escort_counter].Escort(bombers.at(bomber_counter));
         escort_counter++;
     }
 
@@ -143,7 +142,7 @@ void Simulation::InitAttackers()
                 position[2] += 2;
 
                 attackers[escort_counter].SetPosition(position);
-                attackers[escort_counter].Escort(&bomber);
+                attackers[escort_counter].Escort(bomber);
                 escort_counter++;
             }
 
@@ -165,7 +164,7 @@ void Simulation::InitAttackers()
                 position[2] += 2;
 
                 attackers[escort_counter].SetPosition(position);
-                attackers[escort_counter].Escort(&bomber);
+                attackers[escort_counter].Escort(bomber);
                 escort_counter++;
             }
 
@@ -204,9 +203,12 @@ void Simulation::Iterate()
     std::vector<Fighter> newDefenders;
     std::vector<Bomber> newBombers;
 
+    /*
     for (auto plane : attackers)
     {
-        auto var = plane.Iterate(state);
+        auto var = Fighter(plane);
+        var.Iterate(state);
+
         if (var.GetActive())
         {
             newAttackers.push_back(var);
@@ -216,23 +218,33 @@ void Simulation::Iterate()
             not_active.push_back(var);
         }
     }
+    */
 
-    for (auto plane : defenders)
+    if (state != NotDetected)
     {
-        auto var = plane.Iterate(state);
-        if (var.GetActive())
+        for (auto plane : defenders)
         {
-            newDefenders.push_back(var);
-        }
-        else
-        {
-            not_active.push_back(var);
+            auto var = Fighter(plane);
+            var.Iterate(state);
+
+            if (var.GetActive())
+            {
+                newDefenders.push_back(var);
+            }
+            else
+            {
+                not_active.push_back(var);
+            }
+
+            defenders = newDefenders;
         }
     }
 
     for (auto plane : bombers)
     {
-        auto var = plane.Iterate(state);
+        auto var = Bomber(plane);
+        var.Iterate(state);
+
         if (var.GetActive())
         {
             newBombers.push_back(var);
@@ -242,6 +254,9 @@ void Simulation::Iterate()
             not_active.push_back(var);
         }
     }
+
+    // attackers = newAttackers;
+    bombers = newBombers;
 }
 
 std::vector<Fighter> &Simulation::ReturnAllEnemyFighters(const Plane &plane)
@@ -286,4 +301,9 @@ Grid Simulation::ToGrid()
     }
 
     return grid;
+}
+
+std::vector<int> Simulation::GetTarget()
+{
+    return target_pos;
 }

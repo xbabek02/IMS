@@ -4,13 +4,18 @@
 #include <vector>
 #include <iostream>
 
-#include "plane.hpp"
-#include "bomber.hpp"
 #include "fighter.hpp"
+#include "bomber.hpp"
+#include "plane.hpp"
+
 #include "grid.hpp"
 #include "distance.hpp"
 #include "enums.hpp"
 #include <unistd.h>
+
+class Plane;
+class Bomber;
+class Fighter;
 
 class Simulation
 {
@@ -52,6 +57,8 @@ public:
     void LogStatus();
     void Run();
     std::vector<Fighter> &ReturnAllEnemyFighters(const Plane &plane);
+
+    std::vector<int> GetTarget();
 
     ~Simulation();
 };

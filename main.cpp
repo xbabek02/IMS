@@ -1,4 +1,5 @@
 #include "simulation.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <regex>
@@ -106,8 +107,6 @@ int main(int argc, char **argv)
     simulation.LogStatus();
 
     simulation.Run();
-
-
 
     return 0;
 }

@@ -35,6 +35,10 @@ inline char Grid::GetAt(int x, int y)
 
 inline void Grid::SetAt(int x, int y, char c)
 {
+    if (x > size - 1 || y > size - 1)
+    {
+        throw;
+    }
     field.at(y * size + x) = c;
 }
 
