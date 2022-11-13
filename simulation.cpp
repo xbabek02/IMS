@@ -34,6 +34,24 @@ void Simulation::LogStatus()
               << "Number of Defenders: " << defenders.size() << endl;
 }
 
+//TODO
+//maximum podle ktereho se bude porovnavat muze byt 10 nebo 5
+float ClashFunc(Plane plane1, Plane plane2){
+    std::vector<int> pos1 = plane1.GetPosition();
+    std::vector<int> pos2 = plane2.GetPosition();
+
+    //TODO
+    int exp = 110;//max(plane1.number_of_battles, plane2.number_of_battles);
+
+    float direction = (pos1[0] * pos2[0]) + (pos1[1] * pos2[1]) * 0.1;
+    int dist = Distance::CountDistance(pos1, pos2) * 250;
+
+    //TODO
+    float chased = 1 / exp;
+
+    return abs((exp / dist) + direction - chased); //chased?
+}
+
 void Simulation::Run()
 {
     while (true)
