@@ -9,13 +9,16 @@ enum Team
 
 enum PlaneState
 {
+    PreLauch,
     Escorting,
     Scouting,
     Evading,
     Chasing,
     Retreating,
     Destroyed,
-    Retreated
+    Retreated,
+    FlyingToTarget,
+    DroppingBombs
 };
 
 enum Directions

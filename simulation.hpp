@@ -5,12 +5,18 @@
 #include <iostream>
 #include <cmath>
 
-#include "plane.hpp"
-#include "bomber.hpp"
 #include "fighter.hpp"
+#include "bomber.hpp"
+#include "plane.hpp"
+
 #include "grid.hpp"
 #include "distance.hpp"
 #include "enums.hpp"
+#include <unistd.h>
+
+class Plane;
+class Bomber;
+class Fighter;
 
 class Simulation
 {
@@ -36,7 +42,7 @@ private:
     int bombs_dropped = 0;
     int bombs_goal = 100;
 
-    SimulationState state = PreStart;
+    SimulationState state = SimulationState::PreStart;
 
     void InitAttackers();
     bool InsideBoundary(const Plane &plane) const;
@@ -52,6 +58,8 @@ public:
     void LogStatus();
     void Run();
     std::vector<Fighter> &ReturnAllEnemyFighters(const Plane &plane);
+
+    std::vector<int> GetTarget();
 
     ~Simulation();
 };

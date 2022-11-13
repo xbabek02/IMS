@@ -4,8 +4,14 @@ Fighter::Fighter(std::string name, int battles, Team team, Simulation *simulatio
 {
 }
 
-Fighter Fighter::Iterate(SimulationState state)
+void Fighter::Iterate(SimulationState sim_state)
 {
+}
+
+void Fighter::Escort(const Bomber &bomber)
+{
+    SetState(Escorting);
+    SetTarget(bomber);
 }
 
 Fighter::~Fighter()

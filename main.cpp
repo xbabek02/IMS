@@ -1,4 +1,5 @@
 #include "simulation.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <regex>
@@ -100,7 +101,7 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    Simulation simulation(15);
+    Simulation simulation(50);
     ParseInput(string(argv[1]), simulation);
 
     simulation.LogStatus();

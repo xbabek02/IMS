@@ -6,11 +6,12 @@
 class Bomber : public Plane
 {
 private:
-    /* data */
+    int max_steps = 2;
+
 public:
     Bomber(std::string name, int battles, Simulation *simulation);
 
-    Bomber Iterate(SimulationState state);
+    void Iterate(SimulationState sim_state);
 
     ~Bomber();
 };

@@ -30,7 +30,7 @@ void WithId::SetID(int id)
     ID = id;
 }
 
-int WithId::GetID()
+int WithId::GetID() const
 {
     return ID;
 }

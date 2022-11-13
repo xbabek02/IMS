@@ -6,6 +6,7 @@
 
 #include "withid.hpp"
 #include "enums.hpp"
+#include "distance.hpp"
 
 class Simulation;
 
@@ -16,8 +17,7 @@ protected:
     int fuel;
 
     Directions direction;
-    bool turned_last_iteration; // has to go forward the next
-    PlaneState state;
+    PlaneState state = PlaneState::PreLauch;
 
     std::string pilotName;
     int number_of_battles;
@@ -29,17 +29,25 @@ protected:
 
     Simulation *simulation;
 
-    Plane *focused; // for state events (escorted plane, chased plane ...)
+    int target_id;    // for state events (escorted plane, chased plane ...)
+    bool last_turned; // has to go forward the next
+    bool last_rised;  // can't rise in the next iteration
 
 public:
     Plane(std::string name, int battles, Team team, Simulation *simulation);
     std::vector<int> GetPosition() const;
     bool GetActive() const;
     Team GetTeam() const;
+    void SetPosition(std::vector<int> pos);
+    void SetState(PlaneState state);
+    void SetTarget(const Plane &plane);
+    void HeadTo(std::vector<int> pos);
 
-    Plane Iterate(SimulationState state);
+    Plane Iterate(SimulationState sim_state);
 
     ~Plane();
 };
+
+#include "simulation.hpp"
 
 #endif
