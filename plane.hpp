@@ -37,6 +37,7 @@ public:
     Plane(std::string name, int battles, Team team, Simulation *simulation);
     std::vector<int> GetPosition() const;
     bool GetActive() const;
+    int GetBattles() const;
     Team GetTeam() const;
     void SetPosition(std::vector<int> pos);
     void SetState(PlaneState state);

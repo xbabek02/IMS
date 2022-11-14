@@ -23,6 +23,11 @@ void Plane::SetPosition(std::vector<int> pos)
     position = pos;
 }
 
+int Plane::GetBattles() const
+{
+    return number_of_battles;
+}
+
 std::vector<int> Plane::GetPosition() const
 {
     return position;
