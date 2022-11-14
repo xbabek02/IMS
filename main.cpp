@@ -109,8 +109,7 @@ int main(int argc, char **argv)
     ParseInput(string(argv[1]), simulation);
 
     simulation.LogStatus();
-
-    simulation.Run();
+    simulation.Run(200000);
 
     return 0;
 }

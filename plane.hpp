@@ -40,16 +40,19 @@ public:
     std::vector<int> GetPosition() const;
     bool GetActive() const;
     Team GetTeam() const;
+    PlaneState GetState() const;
     void SetPosition(std::vector<int> pos);
     void SetState(PlaneState state);
     void SetTarget(const Plane &plane);
     void SetDirection(Directions direction);
     Plane &GetTarget();
+    int GetTargetId();
+    std::vector<int> GetPosAhead(int steps);
     void HeadTo(std::vector<int> pos);
 
     Plane Iterate(SimulationState sim_state);
 
-    ~Plane();
+    virtual ~Plane() = default;
 };
 
 #include "simulation.hpp"

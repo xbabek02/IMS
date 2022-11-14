@@ -34,7 +34,7 @@ void Simulation::LogStatus()
               << "Number of Defenders: " << defenders.size() << endl;
 }
 
-void Simulation::Run()
+void Simulation::Run(int speed)
 {
     while (true)
     {
@@ -49,9 +49,14 @@ void Simulation::Run()
         case NotDetected:
             Iterate();
             if (AnyAttackerInsideBoundary())
-                state = Combat;
+                state = ZoneBreached;
 
             break;
+
+        case ZoneBreached:
+            DefendersDefend();
+            Iterate();
+            state = Combat;
 
         case Combat:
             Iterate();
@@ -67,7 +72,6 @@ void Simulation::Run()
             {
                 state = AttackersWin;
             }
-
             break;
 
         default:
@@ -75,7 +79,7 @@ void Simulation::Run()
         }
 
         ToGrid().Display();
-        usleep(100000);
+        usleep(speed);
         cout << "\033[2J\033[1;1H";
     }
 }
@@ -169,6 +173,12 @@ void Simulation::InitAttackers()
             bomber_counter++;
         }
     }
+
+    // intialization of bomber targeting, no bomber is targeted at the start
+    for (auto &bomber : bombers)
+    {
+        targetedBombers[bomber.GetID()] = -1;
+    }
 }
 
 bool Simulation::InsideBoundary(const Plane &plane) const
@@ -198,6 +208,75 @@ bool Simulation::AnyAttackerInsideBoundary()
         }
     }
     return false;
+}
+
+void Simulation::DefendersDefend()
+{
+    for (Fighter &plane : defenders)
+    {
+        plane.SetState(LookingForTarget);
+    }
+}
+
+int Simulation::GetClosestUnattackedBomber(const Plane &plane)
+{
+    std::vector<Plane *> freeBombers;
+
+    if (bombers.empty())
+    {
+        return -1;
+    }
+
+    for (auto it = targetedBombers.begin(); it != targetedBombers.end(); it++)
+    {
+        if (it->second == -1)
+        {
+            auto bomber = GetById(it->first);
+            if (bomber.GetActive())
+            {
+                freeBombers.push_back(&bomber);
+            }
+        }
+    }
+
+    if (freeBombers.empty())
+    {
+        // return any closest bomber
+        return GetClosestBomber(plane);
+    }
+
+    // getting the closest bomber out of free bombers
+    int min = INT_MAX;
+    int closest_bomber = -1;
+
+    for (Plane *bomber : freeBombers)
+    {
+        auto distance = Distance::CountDistance(bomber->GetPosition(), plane.GetPosition());
+        min = (min < distance ? min : distance);
+        closest_bomber = bomber->GetID();
+    }
+
+    return closest_bomber;
+}
+
+int Simulation::GetClosestBomber(const Plane &plane)
+{
+    int min = INT_MAX;
+    int closest_bomber = -1;
+
+    for (auto &bomber : bombers)
+    {
+        auto distance = Distance::CountDistance(bomber.GetPosition(), plane.GetPosition());
+        min = (min < distance ? min : distance);
+        closest_bomber = bomber.GetID();
+    }
+
+    return closest_bomber;
+}
+
+void Simulation::UpdateBomberChaser(int bomberId, int chaserId)
+{
+    targetedBombers.at(bomberId) = chaserId;
 }
 
 void Simulation::Iterate()
@@ -251,9 +330,27 @@ void Simulation::Iterate()
     attackers = newAttackers;
     bombers = newBombers;
     defenders = newDefenders;
+
+    // updating the targeting of bombers
+    UpdateBomberTargeting();
 }
 
-std::vector<Fighter> &Simulation::ReturnAllEnemyFighters(const Plane &plane)
+void Simulation::UpdateBomberTargeting()
+{
+    for (auto it = targetedBombers.begin(); it != targetedBombers.end(); it++)
+    {
+        if (it->second != -1)
+        {
+            auto plane = GetById(it->second);
+            if (plane.GetTargetId() != it->first || plane.GetState() != Chasing)
+            {
+                targetedBombers[it->first] = -1;
+            }
+        }
+    }
+}
+
+std::vector<Fighter> &Simulation::GetAllEnemyFighters(const Plane &plane)
 {
     switch (plane.GetTeam())
     {
@@ -266,6 +363,11 @@ std::vector<Fighter> &Simulation::ReturnAllEnemyFighters(const Plane &plane)
         return defenders;
         break;
     }
+}
+
+std::vector<Bomber> &Simulation::GetAllBombers()
+{
+    return bombers;
 }
 
 Grid Simulation::ToGrid()

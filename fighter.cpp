@@ -6,10 +6,36 @@ Fighter::Fighter(std::string name, int battles, Team team, Simulation *simulatio
 
 void Fighter::IterateAttacker(SimulationState sim_state)
 {
+    if (!simulation->InsideBoundary(*this))
+    {
+        switch (state)
+        {
+        case Retreating:
+            state = Retreated;
+            return;
+
+        default:
+            BackToBattlefield(state == Scouting ? Slow : Fast);
+            return;
+        }
+    }
+
     switch (state)
     {
     case Escorting:
         WhenEscorting();
+        break;
+
+    case Evading:
+        WhenEvading();
+        break;
+
+    case Chasing:
+        WhenChasing();
+        break;
+
+    case Retreating:
+        WhenRetreating();
         break;
 
     default:
@@ -36,6 +62,21 @@ void Fighter::IterateDefender(SimulationState sim_state)
     {
     case Scouting:
         WhenScouting();
+        break;
+
+    // find the target ==> then chase it
+    case LookingForTarget:
+        WhenLookingForTarget();
+    case Chasing:
+        WhenChasing();
+        break;
+
+    case Evading:
+        WhenEvading();
+        break;
+
+    case Retreating:
+        WhenRetreating();
         break;
 
     default:
@@ -75,6 +116,31 @@ void Fighter::WhenScouting()
     HeadTo(Distance::NewPointInDirection(direction, position));
 }
 
+void Fighter::WhenLookingForTarget()
+{
+    target_id = simulation->GetClosestUnattackedBomber(*this);
+    ChaseBomber(target_id);
+}
+
+void Fighter::WhenChasing()
+{
+    Plane &plane = simulation->GetById(target_id);
+    std::vector<int> future_pos = plane.GetPosAhead(1);
+
+    for (int i = 0; i < max_steps; i++)
+    {
+        HeadTo(future_pos);
+    }
+}
+
+void Fighter::WhenEvading()
+{
+}
+
+void Fighter::WhenRetreating()
+{
+}
+
 void Fighter::BackToBattlefield(Speed speed)
 {
     int moves = (speed == Slow ? 2 : 3);
@@ -88,6 +154,8 @@ void Fighter::Escort(const Bomber &bomber)
     SetTarget(bomber);
 }
 
-Fighter::~Fighter()
+void Fighter::ChaseBomber(int target_id)
 {
+    SetState(Chasing);
+    simulation->UpdateBomberChaser(target_id, GetID());
 }

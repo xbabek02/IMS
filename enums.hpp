@@ -10,13 +10,16 @@ enum Team
 enum PlaneState
 {
     PreLauch,
+
     Escorting,
     Scouting,
     Evading,
     Chasing,
+    LookingForTarget,
     Retreating,
     Destroyed,
     Retreated,
+
     FlyingToTarget,
     DroppingBombs
 };
@@ -37,6 +40,7 @@ enum SimulationState
 {
     PreStart,
     NotDetected,
+    ZoneBreached,
     Combat,
     TargetUnderAttack,
     DefendersWin,

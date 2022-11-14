@@ -80,6 +80,16 @@ void Plane::HeadTo(std::vector<int> pos)
     }
 }
 
+std::vector<int> Plane::GetPosAhead(int steps)
+{
+    auto vec = Distance::DirectionToVector(direction);
+    std::vector<int> new_pos(position);
+    new_pos[0] += vec[0] * steps;
+    new_pos[1] += vec[1] * steps;
+
+    return new_pos;
+}
+
 std::vector<int> Plane::PointSameHigh(std::vector<int> point)
 {
     return std::vector<int>({point[0], point[1], position[2]});
@@ -90,6 +100,12 @@ Plane &Plane::GetTarget()
     return simulation->GetById(target_id);
 }
 
-Plane::~Plane()
+int Plane::GetTargetId()
 {
+    return target_id;
+}
+
+PlaneState Plane::GetState() const
+{
+    return state;
 }

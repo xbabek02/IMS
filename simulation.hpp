@@ -13,6 +13,8 @@
 #include "enums.hpp"
 #include "random.hpp"
 #include <unistd.h>
+#include <map>
+#include <climits>
 
 class Plane;
 class Bomber;
@@ -35,6 +37,9 @@ private:
     int battlefield_radius;
     std::vector<int> center;
 
+    // for keeping track of which bombers are free to take on
+    std::map<int, int> targetedBombers;
+
     int sim_width;
     int sim_length;
 
@@ -45,23 +50,32 @@ private:
 
     void InitAttackers();
     void InitDefenders();
+    void DefendersDefend();
     bool AnyAttackerInsideBoundary();
     void Iterate();
+    void UpdateBomberTargeting();
     std::vector<int> RandomBattlefieldPoint();
 
 public:
-    Grid ToGrid();
     Simulation(int battlefield_radius);
+
     void AddBomber(const Bomber &bomber);
     void AddAttacker(const Fighter &fighter);
     void AddDefender(const Fighter &fighter);
-    bool InsideBoundary(const Plane &plane) const;
-    void LogStatus();
-    void Run();
-    std::vector<Fighter> &ReturnAllEnemyFighters(const Plane &plane);
+
+    std::vector<Bomber> &GetAllBombers();
+    std::vector<Fighter> &GetAllEnemyFighters(const Plane &plane);
     Plane &GetById(int id);
     const std::vector<int> &GetCenter() const;
     std::vector<int> GetTarget();
+    int GetClosestUnattackedBomber(const Plane &plane);
+    int GetClosestBomber(const Plane &plane);
+    void UpdateBomberChaser(int bomberId, int chaserId);
+
+    Grid ToGrid();
+    bool InsideBoundary(const Plane &plane) const;
+    void LogStatus();
+    void Run(int speed);
 
     ~Simulation();
 };

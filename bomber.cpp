@@ -14,7 +14,3 @@ void Bomber::Iterate(SimulationState sim_state)
         }
     }
 }
-
-Bomber::~Bomber()
-{
-}
