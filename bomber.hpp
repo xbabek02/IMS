@@ -13,7 +13,7 @@ public:
 
     void Iterate(SimulationState sim_state);
 
-    ~Bomber();
+    virtual ~Bomber() = default;
 };
 
 #endif

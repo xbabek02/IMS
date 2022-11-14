@@ -29,9 +29,11 @@ protected:
 
     Simulation *simulation;
 
-    int target_id;    // for state events (escorted plane, chased plane ...)
-    bool last_turned; // has to go forward the next
-    bool last_rised;  // can't rise in the next iteration
+    int target_id;            // for state events (escorted plane, chased plane ...)
+    bool last_turned = false; // has to go forward the next
+    bool last_rised = false;  // can't rise in the next iteration
+
+    std::vector<int> PointSameHigh(std::vector<int>);
 
 public:
     Plane(std::string name, int battles, Team team, Simulation *simulation);
@@ -39,14 +41,19 @@ public:
     bool GetActive() const;
     int GetBattles() const;
     Team GetTeam() const;
+    PlaneState GetState() const;
     void SetPosition(std::vector<int> pos);
     void SetState(PlaneState state);
     void SetTarget(const Plane &plane);
+    void SetDirection(Directions direction);
+    Plane &GetTarget();
+    int GetTargetId();
+    std::vector<int> GetPosAhead(int steps);
     void HeadTo(std::vector<int> pos);
 
     Plane Iterate(SimulationState sim_state);
 
-    ~Plane();
+    virtual ~Plane() = default;
 };
 
 #include "simulation.hpp"
