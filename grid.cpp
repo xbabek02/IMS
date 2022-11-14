@@ -69,7 +69,7 @@ void Grid::DrawBattlefield(int radius, vector<int> center)
                 continue;
             }
 
-            int distance = Distance::CountDistance(center, {x_start, y_start, 0});
+            int distance = Distance::CountDistance2D(center, {x_start, y_start, 0});
             if (distance == radius)
             {
                 SetAt(x_start, y_start, '@');
@@ -94,7 +94,7 @@ void Grid::DrawTargetZone(int radius, vector<int> center)
         y_start = center[0] - radius - boundary;
         for (; y_start < y_end; y_start++)
         {
-            int distance = Distance::CountDistance(center, {x_start, y_start, 0});
+            int distance = Distance::CountDistance2D(center, {x_start, y_start, 0});
             if (distance == radius)
             {
                 SetAt(x_start, y_start, '@');
@@ -105,11 +105,6 @@ void Grid::DrawTargetZone(int radius, vector<int> center)
             }
         }
     }
-}
-
-void Grid::DrawAirport(vector<int> position)
-{
-    SetAt(position[0], position[1], AIRPORT);
 }
 
 Grid::~Grid()

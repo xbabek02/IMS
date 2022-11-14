@@ -43,4 +43,10 @@ enum SimulationState
     AttackersWin
 };
 
+enum Speed
+{
+    Slow,
+    Fast
+};
+
 #endif

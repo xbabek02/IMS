@@ -38,6 +38,11 @@ void Plane::SetTarget(const Plane &plane)
     target_id = plane.GetID();
 }
 
+void Plane::SetDirection(Directions direction)
+{
+    this->direction = direction;
+}
+
 void Plane::HeadTo(std::vector<int> pos)
 {
     // will rise if the target is higher
@@ -73,6 +78,16 @@ void Plane::HeadTo(std::vector<int> pos)
     {
         last_turned = true;
     }
+}
+
+std::vector<int> Plane::PointSameHigh(std::vector<int> point)
+{
+    return std::vector<int>({point[0], point[1], position[2]});
+}
+
+Plane &Plane::GetTarget()
+{
+    return simulation->GetById(target_id);
 }
 
 Plane::~Plane()

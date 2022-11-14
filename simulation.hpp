@@ -11,6 +11,7 @@
 #include "grid.hpp"
 #include "distance.hpp"
 #include "enums.hpp"
+#include "random.hpp"
 #include <unistd.h>
 
 class Plane;
@@ -28,7 +29,6 @@ private:
 
     int iteration = 0;
 
-    std::vector<int> airport_pos;
     std::vector<int> target_pos;
 
     int target_radius;
@@ -44,9 +44,10 @@ private:
     SimulationState state = SimulationState::PreStart;
 
     void InitAttackers();
-    bool InsideBoundary(const Plane &plane) const;
+    void InitDefenders();
     bool AnyAttackerInsideBoundary();
     void Iterate();
+    std::vector<int> RandomBattlefieldPoint();
 
 public:
     Grid ToGrid();
@@ -54,10 +55,12 @@ public:
     void AddBomber(const Bomber &bomber);
     void AddAttacker(const Fighter &fighter);
     void AddDefender(const Fighter &fighter);
+    bool InsideBoundary(const Plane &plane) const;
     void LogStatus();
     void Run();
     std::vector<Fighter> &ReturnAllEnemyFighters(const Plane &plane);
-
+    Plane &GetById(int id);
+    const std::vector<int> &GetCenter() const;
     std::vector<int> GetTarget();
 
     ~Simulation();

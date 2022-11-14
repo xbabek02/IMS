@@ -5,6 +5,16 @@ int Distance::CountDistance(std::vector<int> p1, std::vector<int> p2)
     return round(sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2) + pow(p1[2] - p2[2], 2)));
 }
 
+int Distance::CountDistance2D(std::vector<int> p1, std::vector<int> p2)
+{
+    return round(sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2)));
+}
+
+bool Distance::InRadiusFrom2D(std::vector<int> p1, std::vector<int> p2, int radius)
+{
+    return CountDistance2D(p1, p2) <= radius;
+}
+
 bool Distance::InRadiusFrom(std::vector<int> p1, std::vector<int> p2, int radius)
 {
     return CountDistance(p1, p2) <= radius;
@@ -108,6 +118,15 @@ Directions Distance::BestPossibleFromCurrentDirection(Directions current, Direct
             return static_cast<Directions>(((current + 1) + 8) % 8);
         }
     }
+}
+
+std::vector<int> Distance::NewPointInDirection(Directions direction, std::vector<int> position)
+{
+    auto vec = Distance::DirectionToVector(direction);
+    position.at(0) += vec.at(0);
+    position.at(1) += vec.at(1);
+
+    return position;
 }
 
 std::vector<int> Distance::DirectionToVector(Directions direction)

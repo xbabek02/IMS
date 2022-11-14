@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -Wall -g
 
-OBJ = main.o grid.o simulation.o bomber.o fighter.o plane.o withid.o distance.o
+OBJ = main.o grid.o simulation.o bomber.o fighter.o plane.o withid.o distance.o random.o
 
 all: ims
 

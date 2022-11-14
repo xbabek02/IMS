@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <regex>
+#include <random>
 
 using namespace std;
 
@@ -100,6 +101,9 @@ int main(int argc, char **argv)
         cerr << "Error: Missing argument specifying the input file" << endl;
         exit(1);
     }
+
+    std::random_device rd;  // obtain a random number from hardware
+    std::mt19937 gen(rd()); // seed the generator
 
     Simulation simulation(50);
     ParseInput(string(argv[1]), simulation);
