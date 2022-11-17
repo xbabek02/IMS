@@ -46,43 +46,66 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
     int expChasee = chasee.GetExperience();
     int directionChaser = chaser.GetDirection();
     int directionChasee = chasee.GetDirection();
-    int angle = Distance::AngleOfTwoPoints(pos1, pos2);
-    int direction = 0;
-    if(directionChaser == directionChasee && angle == 0){
-        //velka vyhoda
+    
+    float direction = 20.0;
+    float multiplier = 0.0;
+    int dist = Distance::CountDistance2D(pos1, pos2) * 250;
+   
+    //In radius from2D
+    //new point in direction
+    //vytvori kruznici -> pokud je v kruznici neresim uhel , pokud ne tak resim uhel (cim vetsi je ten uhel tim mensi sance) nad 90 a 
+    //pod 270 je to 0
+
+    //inside
+    std::vector<int> newPoint = Distance::NewPointInDirection(chaser.GetDirection(), pos1, 3);
+    int radius = Distance::CountDistance2D(pos1, newPoint);
+
+    //spocitat smer
+    if(directionChaser == directionChasee){
+        multiplier = 1.5;
     }
     else{
-        if((directionChaser - directionChasee) == abs(4) && angle == 0){
-            //uplne proti sobe -> zadna vyhoda
+        int difference = directionChaser - directionChasee;
+
+        if (difference < 0)
+            difference += 8;
+
+        if (difference == 4){
+            multiplier = 0;
+        } //-> proti sobě
+        else{
+            multiplier = 1 / difference;
         }
-
-        //In radius from2D
-        //new point in direction
-        //vytvori kruznici -> pokud je v kruznici neresim uhel , pokud ne tak resim uhel (cim vetsi je ten uhel tim mensi sance) nad 90 a 
-        //pod 270 je to 0
-
-        //
     }
 
+    //Spcocitani clash cisla
+    if(Distance::InRadiusFrom2D(newPoint, pos2, radius)){
+        //rozhoduje zkusenosti, smer, vzdalenost 
+        return ((((expChaser + (direction * multiplier)) - expChasee) / dist) + 2) / 4;
+    }
+    //venku, uhly
+    else{
+        int angle = Distance::AngleOfTwoPoints(pos1, pos2);
 
-    int dist = Distance::CountDistance2D(pos1, pos2) * 250;
+        if(angle > 90 && angle < 270){
+            return 0.0;
+        }
+        else{
+            if(angle >= 270){
+                angle = abs(angle - 360);
+            }
+            return ((((expChaser + (direction * multiplier)) - expChasee) / dist + angle) + 2) / 4;
+        }
+    }
+    
 
     // od 0 do 1
-    return (((expChaser + direction) - expChasee) / dist) + 2;
+    //return (((expChaser + direction) - expChasee) / dist) + 2;
     // -2 do 2 -> 0 je 50%
     // po norm. je to 0 do 4
     // 2 je 50%
     // >= 3.8 sance 95%
-    // <= 0 sance 0%
-
-    // bombarder vs stihac -> volaji se pro oba, prvni ale bombarder
-    // historicky posadky bombarderu nepresahovaly 25 misi
-    // sance na zniceni bombarderu nebo stihace se pohybuje kolem 50% pokud jsou si rovni
-    // bombarder je ale silny celkem a ma vysokou sanci na sestrel i pri nizke zkusenosti
-    // bombarder se zmeni na chaser kdyz dojde na radu se branit, stale plati vyhoda
-    // smeru
-
-    //
+    // <= 0.1 sance 10%
 }
 
 void Simulation::Run(int speed)
