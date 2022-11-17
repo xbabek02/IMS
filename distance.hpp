@@ -16,7 +16,8 @@ public:
     static Directions AngleToDirection(double angle);
     static Directions BestPossibleFromCurrentDirection(Directions current, Directions desired);
     static std::vector<int> DirectionToVector(Directions direction);
-    static std::vector<int> NewPointInDirection(Directions direction, std::vector<int> position);
+    static std::vector<int> NewPointInDirection(Directions direction, std::vector<int> position, int times = 1);
+    static int AngleOfTwoPoints(std::vector<int> p1, std::vector<int> p2);
 };
 
 #endif

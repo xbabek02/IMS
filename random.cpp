@@ -15,4 +15,24 @@ namespace rnd
     {
         return static_cast<Directions>(rnd::range(0, 7));
     }
+
+    int ExperienceClash(int exp1, int exp2)
+    {
+        if (rnd::range(0, 1) == 0)
+        {
+            return 0;
+        }
+
+        int sum = exp1 + exp2;
+
+        int random = rnd::range(1, sum);
+        if (random <= exp1)
+        {
+            return 1;
+        }
+        else
+        {
+            return 2;
+        }
+    }
 }

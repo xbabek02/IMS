@@ -38,6 +38,16 @@ void Plane::SetTarget(const Plane &plane)
     target_id = plane.GetID();
 }
 
+void Plane::SetInsideZone()
+{
+    insideZone = true;
+}
+
+bool Plane::GetInsideZone()
+{
+    return insideZone;
+}
+
 void Plane::SetDirection(Directions direction)
 {
     this->direction = direction;
@@ -45,7 +55,7 @@ void Plane::SetDirection(Directions direction)
 
 void Plane::HeadTo(std::vector<int> pos)
 {
-    // will rise if the target is higher
+    /*// will rise if the target is higher
     if ((pos.at(2) > position.at(2)) && !last_rised)
     {
         position.at(2)++;
@@ -54,7 +64,7 @@ void Plane::HeadTo(std::vector<int> pos)
     }
 
     last_rised = false;
-
+    */
     // must head forward if it turned last iteration
     if (last_turned)
     {
@@ -69,15 +79,95 @@ void Plane::HeadTo(std::vector<int> pos)
     Directions best_direction = Distance::GetBestDirection(position, pos);
     best_direction = Distance::BestPossibleFromCurrentDirection(direction, best_direction);
 
+    if (state != Retreating && IsBoundaryInDirection(best_direction) && insideZone)
+    {
+        best_direction = DirectionEvadeBoundary();
+    }
+
     auto vec = Distance::DirectionToVector(best_direction);
     position.at(0) += vec.at(0);
     position.at(1) += vec.at(1);
-    direction = best_direction;
 
     if (best_direction != direction)
     {
         last_turned = true;
     }
+
+    direction = best_direction;
+}
+
+bool Plane::IsBoundaryInDirection(Directions d)
+{
+    if (!Distance::InRadiusFrom2D(Distance::NewPointInDirection(d, position, 5),
+                                  simulation->GetCenter(), simulation->GetBattlefieldRadius()))
+    {
+        return true;
+    }
+    return false;
+}
+
+Directions Plane::DirectionEvadeBoundary()
+{
+    std::vector<Directions> directions({static_cast<Directions>(((direction - 1) + 8) % 8),
+                                        static_cast<Directions>(((direction + 1) + 8) % 8),
+                                        direction});
+
+    int max = INT_MIN;
+    Directions best;
+    int battlefield_radius = simulation->GetBattlefieldRadius();
+    auto battlefield_center = simulation->GetCenter();
+    int steps = 0;
+
+    for (int i = 0; i < 3; i++)
+    {
+        // iterate until hitting the boundary
+        for (steps = 0;
+             Distance::InRadiusFrom2D(Distance::NewPointInDirection(directions[i], position, steps),
+                                      battlefield_center, battlefield_radius);
+             steps++)
+            ;
+        if (steps > max)
+        {
+            best = directions[i];
+            max = steps;
+        }
+    }
+    return best;
+}
+
+int Plane::IsAnyEnemyFighterDangerouslyBehind()
+{
+    auto enemies = simulation->GetAllEnemyFighters(*this);
+    for (auto &enemy : enemies)
+    {
+        if (IsDangerouslyBehind(enemy))
+        {
+            return enemy.GetID();
+        }
+    }
+    return -1;
+}
+
+bool Plane::IsDangerouslyBehind(const Plane &plane) const
+{
+    if (plane.GetTargetId() != GetID() || plane.GetState() != Chasing)
+    {
+        return false;
+    }
+
+    if (Distance::CountDistance2D(position, plane.GetPosition()) > 8)
+    {
+        return false;
+    }
+
+    Directions left = static_cast<Directions>(((plane.GetDirection() - 1) + 8) % 8);
+    Directions right = static_cast<Directions>(((plane.GetDirection() + 1) + 8) % 8);
+
+    if (left == direction || right == direction || plane.GetDirection() == direction)
+    {
+        return true;
+    }
+    return false;
 }
 
 std::vector<int> Plane::GetPosAhead(int steps)
@@ -100,7 +190,17 @@ Plane &Plane::GetTarget()
     return simulation->GetById(target_id);
 }
 
-int Plane::GetTargetId()
+Directions Plane::GetDirection() const
+{
+    return direction;
+}
+
+bool Plane::IsTargetActive()
+{
+    return GetTarget().GetActive();
+}
+
+int Plane::GetTargetId() const
 {
     return target_id;
 }
@@ -108,4 +208,9 @@ int Plane::GetTargetId()
 PlaneState Plane::GetState() const
 {
     return state;
+}
+
+int Plane::GetExperience() const
+{
+    return number_of_battles;
 }

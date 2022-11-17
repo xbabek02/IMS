@@ -26,10 +26,11 @@ protected:
     int takedowns = 0;
 
     std::vector<int> position;
+    bool insideZone = false;
 
     Simulation *simulation;
 
-    int target_id;            // for state events (escorted plane, chased plane ...)
+    int target_id = -1;       // for state events (escorted plane, chased plane ...)
     bool last_turned = false; // has to go forward the next
     bool last_rised = false;  // can't rise in the next iteration
 
@@ -45,10 +46,20 @@ public:
     void SetState(PlaneState state);
     void SetTarget(const Plane &plane);
     void SetDirection(Directions direction);
+    void SetInsideZone();
+    bool GetInsideZone();
+    Directions GetDirection() const;
     Plane &GetTarget();
-    int GetTargetId();
+    int GetTargetId() const;
+    int GetExperience() const;
     std::vector<int> GetPosAhead(int steps);
     void HeadTo(std::vector<int> pos);
+
+    bool IsDangerouslyBehind(const Plane &plane) const;
+    int IsAnyEnemyFighterDangerouslyBehind();
+    bool IsTargetActive();
+    bool IsBoundaryInDirection(Directions d);
+    Directions DirectionEvadeBoundary();
 
     Plane Iterate(SimulationState sim_state);
 

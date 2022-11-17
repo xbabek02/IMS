@@ -102,14 +102,11 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    std::random_device rd;  // obtain a random number from hardware
-    std::mt19937 gen(rd()); // seed the generator
-
     Simulation simulation(50);
     ParseInput(string(argv[1]), simulation);
 
     simulation.LogStatus();
-    simulation.Run(200000);
+    simulation.Run(300000);
 
     return 0;
 }

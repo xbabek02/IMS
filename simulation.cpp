@@ -5,7 +5,7 @@ Simulation::Simulation(int battlefield_radius) : battlefield_radius(battlefield_
     sim_length = sim_width = battlefield_radius * 2 + 50;
     center = {sim_length / 2, sim_width / 2, 0};
     target_pos.assign({sim_length / 2, sim_width / 2, 0});
-    target_radius = battlefield_radius * 2 / 15;
+    target_radius = (battlefield_radius * 2) / 15;
 }
 
 Simulation::~Simulation()
@@ -43,6 +43,7 @@ void Simulation::Run(int speed)
         case SimulationState::PreStart:
             InitAttackers();
             InitDefenders();
+            InitTargetingMaps();
             state = NotDetected;
             break;
 
@@ -50,7 +51,6 @@ void Simulation::Run(int speed)
             Iterate();
             if (AnyAttackerInsideBoundary())
                 state = ZoneBreached;
-
             break;
 
         case ZoneBreached:
@@ -59,14 +59,6 @@ void Simulation::Run(int speed)
             state = Combat;
 
         case Combat:
-            Iterate();
-            if (bombs_dropped != 0)
-            {
-                state = TargetUnderAttack;
-            }
-            break;
-
-        case TargetUnderAttack:
             Iterate();
             if (bombs_dropped >= bombs_goal)
             {
@@ -88,10 +80,10 @@ void Simulation::InitAttackers()
 {
     // PARAMETERS FOR FORMATION
 
-    int offset_from_border = 5;
+    int offset_from_border = 12;
     int planes_in_formation = bombers.size();
     int boundary_y = 2; // 500m between planes
-    int boundary_x = 5;
+    int boundary_x = 4;
 
     int rows = planes_in_formation / 2;
     int escort_offset = 2;
@@ -99,86 +91,54 @@ void Simulation::InitAttackers()
     // center of the simulation width
     int x = center.at(0);
     // down the bottom, then point to the most front plane
-    int y = sim_width - offset_from_border - boundary_y * rows + 1;
+    int y = sim_width - offset_from_border - (boundary_y * rows) + 1;
 
     size_t bomber_counter = 0;
     size_t escort_counter = 0;
 
-    if (bombers.size() != 0)
+    for (size_t i = 0; i < bombers.size(); i++)
     {
-        bombers.at(bomber_counter).SetPosition({x, y, rand() % 16 + 20});
-        bombers.at(bomber_counter).SetState(PlaneState::FlyingToTarget);
+        int even = (i % 2 == 0 ? 1 : -1);
+        int increment = even == 1 ? 0 : 1;
+        int offset_y = ((i + increment) / 2) * boundary_y;
+        int offset_x = ((i + increment) / 2) * boundary_x;
+
+        Bomber &bomber = bombers.at(i);
+        bomber.SetPosition({x + (offset_x * even), y + offset_y, rand() % 16 + 20});
+        bomber.SetState(PlaneState::FlyingToTarget);
 
         // assign escort
         if (escort_counter < attackers.size())
         {
-            auto position = bombers.at(bomber_counter).GetPosition();
+            auto position = bomber.GetPosition();
             position[0] -= escort_offset;
+            position[1] += 7;
             position[2] += 2;
 
             attackers[escort_counter].SetPosition(position);
-            attackers[escort_counter].Escort(bombers.at(bomber_counter));
+            attackers[escort_counter].Escort(bomber.GetID());
             escort_counter++;
         }
-
-        bomber_counter++;
     }
 
-    for (int i = 0; i < (planes_in_formation / 2); i++)
+    bomber_counter = 0;
+
+    // place randomly excessive Fighters
+    for (; escort_counter < attackers.size(); escort_counter++)
     {
-        int offset_y = (i + 1) * boundary_y;
-        int offset_x = (i + 1) * boundary_x;
-
-        // left
-        if (bomber_counter < bombers.size())
-        {
-            Bomber &bomber = bombers.at(bomber_counter);
-            bomber.SetPosition({x - offset_x, y + offset_y, rand() % 16 + 20});
-            bomber.SetState(PlaneState::FlyingToTarget);
-
-            // assign escort
-            if (escort_counter < attackers.size())
-            {
-                auto position = bomber.GetPosition();
-                position[0] -= escort_offset;
-                position[2] += 2;
-
-                attackers[escort_counter].SetPosition(position);
-                attackers[escort_counter].Escort(bomber);
-                escort_counter++;
-            }
-
-            bomber_counter++;
-        }
-
-        // right
-        if (bomber_counter < bombers.size())
-        {
-            Bomber &bomber = bombers.at(bomber_counter);
-            bomber.SetPosition({x + offset_x, y + offset_y, rand() % 16 + 20});
-            bomber.SetState(PlaneState::FlyingToTarget);
-
-            // assign escort
-            if (escort_counter < attackers.size())
-            {
-                auto position = bomber.GetPosition();
-                position[0] += escort_offset;
-                position[2] += 2;
-
-                attackers[escort_counter].SetPosition(position);
-                attackers[escort_counter].Escort(bomber);
-                escort_counter++;
-            }
-
-            bomber_counter++;
-        }
+        auto x = rnd::range(0, sim_width - 1);
+        attackers[escort_counter].SetPosition({x, y, rnd::range(26, 33)});
+        attackers[escort_counter].Escort(bombers[bomber_counter++].GetID());
     }
+}
 
+void Simulation::InitTargetingMaps()
+{
     // intialization of bomber targeting, no bomber is targeted at the start
-    for (auto &bomber : bombers)
+    /*for (auto &bomber : bombers)
     {
-        targetedBombers[bomber.GetID()] = -1;
-    }
+        targetedBombers[bomber.GetID()] = std::vector<int>();
+    }*/
 }
 
 bool Simulation::InsideBoundary(const Plane &plane) const
@@ -218,7 +178,7 @@ void Simulation::DefendersDefend()
     }
 }
 
-int Simulation::GetClosestUnattackedBomber(const Plane &plane)
+int Simulation::GetClosestUnattackedBomber(const Plane &plane, bool orClosest)
 {
     std::vector<Plane *> freeBombers;
 
@@ -229,7 +189,7 @@ int Simulation::GetClosestUnattackedBomber(const Plane &plane)
 
     for (auto it = targetedBombers.begin(); it != targetedBombers.end(); it++)
     {
-        if (it->second == -1)
+        if (it->second.empty())
         {
             auto bomber = GetById(it->first);
             if (bomber.GetActive())
@@ -242,7 +202,7 @@ int Simulation::GetClosestUnattackedBomber(const Plane &plane)
     if (freeBombers.empty())
     {
         // return any closest bomber
-        return GetClosestBomber(plane);
+        return orClosest ? GetClosestBomber(plane) : -1;
     }
 
     // getting the closest bomber out of free bombers
@@ -276,7 +236,26 @@ int Simulation::GetClosestBomber(const Plane &plane)
 
 void Simulation::UpdateBomberChaser(int bomberId, int chaserId)
 {
-    targetedBombers.at(bomberId) = chaserId;
+    targetedBombers[bomberId].push_back(chaserId);
+}
+
+void Simulation::ExperienceSwapChase()
+{
+    for (auto &fighter : attackers)
+    {
+        if (fighter.GetState() == Evading)
+        {
+            fighter.SwapSkillCheck();
+        }
+    }
+
+    for (auto &fighter : defenders)
+    {
+        if (fighter.GetState() == Evading)
+        {
+            fighter.SwapSkillCheck();
+        }
+    }
 }
 
 void Simulation::Iterate()
@@ -284,6 +263,8 @@ void Simulation::Iterate()
     std::vector<Fighter> newAttackers;
     std::vector<Fighter> newDefenders;
     std::vector<Bomber> newBombers;
+
+    ExperienceSwapChase();
 
     for (auto plane : attackers)
     {
@@ -333,20 +314,52 @@ void Simulation::Iterate()
 
     // updating the targeting of bombers
     UpdateBomberTargeting();
+    iteration++;
 }
 
 void Simulation::UpdateBomberTargeting()
 {
     for (auto it = targetedBombers.begin(); it != targetedBombers.end(); it++)
     {
-        if (it->second != -1)
+        auto &vec = it->second;
+        for (auto inner_it = vec.begin(); inner_it != vec.end();)
         {
-            auto plane = GetById(it->second);
+            auto plane = GetById(*inner_it);
             if (plane.GetTargetId() != it->first || plane.GetState() != Chasing)
             {
-                targetedBombers[it->first] = -1;
+                inner_it = vec.erase(inner_it);
+            }
+            else
+            {
+                inner_it++;
             }
         }
+    }
+
+    // Get Duplicite Attackers
+    std::vector<int> duplicates;
+
+    for (auto it = targetedBombers.begin(); it != targetedBombers.end(); it++)
+    {
+        if (it->second.size() > 1)
+        {
+            for (auto inner_it = it->second.begin() + 1; inner_it != it->second.end(); inner_it++)
+            {
+                duplicates.push_back(*inner_it);
+            }
+        }
+    }
+
+    // Assign new attackers to non attacked bombers
+    for (auto planeId : duplicates)
+    {
+        Fighter &plane = dynamic_cast<Fighter &>(GetById(planeId));
+        int bomberId = GetClosestUnattackedBomber(plane, false);
+        if (bomberId == -1)
+        {
+            return;
+        }
+        plane.ChaseBomber(bomberId);
     }
 }
 
@@ -441,6 +454,39 @@ void Simulation::InitDefenders()
 std::vector<int> Simulation::GetTarget()
 {
     return target_pos;
+}
+
+int Simulation::GetTargetRadius() const
+{
+    return target_radius;
+}
+
+int Simulation::GetIteration() const
+{
+    return iteration;
+}
+
+void Simulation::DropBomb()
+{
+    bombs_dropped++;
+}
+
+int Simulation::GetBattlefieldRadius() const
+{
+    return battlefield_radius;
+}
+
+int Simulation::GetAttackerId(const Plane &plane)
+{
+    auto enemies = GetAllEnemyFighters(plane);
+    for (auto &enemy : enemies)
+    {
+        if (enemy.GetTargetId() == plane.GetID() && enemy.GetState() == Chasing)
+        {
+            return enemy.GetID();
+        }
+    }
+    return -1;
 }
 
 std::vector<int> Simulation::RandomBattlefieldPoint()

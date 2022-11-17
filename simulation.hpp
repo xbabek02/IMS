@@ -38,7 +38,7 @@ private:
     std::vector<int> center;
 
     // for keeping track of which bombers are free to take on
-    std::map<int, int> targetedBombers;
+    std::map<int, std::vector<int>> targetedBombers;
 
     int sim_width;
     int sim_length;
@@ -50,11 +50,14 @@ private:
 
     void InitAttackers();
     void InitDefenders();
+    void InitTargetingMaps();
     void DefendersDefend();
     bool AnyAttackerInsideBoundary();
+    void ExperienceSwapChase();
     void Iterate();
     void UpdateBomberTargeting();
     std::vector<int> RandomBattlefieldPoint();
+    void UpdateBomberChaser(int bomberId, int chaserId);
 
 public:
     Simulation(int battlefield_radius);
@@ -66,14 +69,20 @@ public:
     std::vector<Bomber> &GetAllBombers();
     std::vector<Fighter> &GetAllEnemyFighters(const Plane &plane);
     Plane &GetById(int id);
+    int GetIteration() const;
     const std::vector<int> &GetCenter() const;
     std::vector<int> GetTarget();
-    int GetClosestUnattackedBomber(const Plane &plane);
+    int GetTargetRadius() const;
+    int GetClosestUnattackedBomber(const Plane &plane, bool orClosest = true);
     int GetClosestBomber(const Plane &plane);
-    void UpdateBomberChaser(int bomberId, int chaserId);
+    int GetAttackerId(const Plane &plane);
+    int GetBattlefieldRadius() const;
 
-    Grid ToGrid();
+    void DropBomb();
+
     bool InsideBoundary(const Plane &plane) const;
+    Grid ToGrid();
+
     void LogStatus();
     void Run(int speed);
 

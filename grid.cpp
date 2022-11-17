@@ -101,7 +101,7 @@ void Grid::DrawTargetZone(int radius, vector<int> center)
             }
             if (distance < radius)
             {
-                SetAt(x_start, y_start, '/');
+                SetAt(x_start, y_start, ' ');
             }
         }
     }

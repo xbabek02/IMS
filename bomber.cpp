@@ -13,4 +13,11 @@ void Bomber::Iterate(SimulationState sim_state)
             HeadTo(simulation->GetTarget());
         }
     }
+    if (!last_dropped)
+    {
+        if (Distance::InRadiusFrom2D(simulation->GetTarget(), position, simulation->GetTargetRadius()))
+            simulation->DropBomb();
+    }
+    else
+        last_dropped = false;
 }

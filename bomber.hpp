@@ -7,6 +7,7 @@ class Bomber : public Plane
 {
 private:
     int max_steps = 2;
+    bool last_dropped = false;
 
 public:
     Bomber(std::string name, int battles, Simulation *simulation);

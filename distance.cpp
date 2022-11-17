@@ -20,6 +20,54 @@ bool Distance::InRadiusFrom(std::vector<int> p1, std::vector<int> p2, int radius
     return CountDistance(p1, p2) <= radius;
 }
 
+int Distance::AngleOfTwoPoints(std::vector<int> p1, std::vector<int> p2)
+{
+    auto A = p1;
+    auto B = p2;
+    auto C = std::vector<int>({A[0], B[1]});
+
+    std::vector<double> v1({static_cast<double>(B[0] - A[0]), static_cast<double>(B[1] - A[1])});
+    std::vector<double> v2({static_cast<double>(C[0] - B[0]), static_cast<double>(C[1] - B[1])});
+
+    double size1 = sqrt(pow(v1[0], 2) + pow(v1[1], 2));
+    double size2 = sqrt(pow(v2[0], 2) + pow(v2[1], 2));
+
+    double angle = asin(size2 / size1) * (180 / M_PI);
+
+    // counting the rest of angle based on quadrants
+
+    // first quadrant
+    if (A[0] < B[0] && A[1] >= B[1])
+    {
+        angle = 90 - angle;
+    }
+    // second quadrant
+    else if (A[0] >= B[0] && B[1] < A[1])
+    {
+        angle += 90;
+    }
+    // third quadrant
+    else if (A[0] > B[0] && B[1] >= A[1])
+    {
+        angle = (90 - angle) + 180;
+    }
+    // fourth quadrant
+    else if (A[0] <= B[0] && B[1] > A[1])
+    {
+        angle += 270;
+    }
+    else if (A[0] == B[0] && A[1] == B[1])
+    {
+        return Up;
+    }
+    else
+    {
+        // something unexpected happened
+        throw;
+    }
+    return angle;
+}
+
 Directions Distance::GetBestDirection(const std::vector<int> &p1, const std::vector<int> &p2)
 {
     auto A = p1;
@@ -120,11 +168,11 @@ Directions Distance::BestPossibleFromCurrentDirection(Directions current, Direct
     }
 }
 
-std::vector<int> Distance::NewPointInDirection(Directions direction, std::vector<int> position)
+std::vector<int> Distance::NewPointInDirection(Directions direction, std::vector<int> position, int times)
 {
     auto vec = Distance::DirectionToVector(direction);
-    position.at(0) += vec.at(0);
-    position.at(1) += vec.at(1);
+    position.at(0) += vec.at(0) * times;
+    position.at(1) += vec.at(1) * times;
 
     return position;
 }

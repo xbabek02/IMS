@@ -13,10 +13,14 @@ class Fighter : public Plane
 private:
     int ammo_cnt;
     int max_steps = 3;
+    int assignedEscort = -1;
+
+    void LookForDefenders();
 
     void WhenScouting();
     void WhenEscorting();
     void WhenLookingForTarget();
+    void WhenFlyingToTarget();
     void WhenChasing();
     void WhenEvading();
     void WhenRetreating();
@@ -27,10 +31,15 @@ public:
     Fighter(std::string name, int battles, Team team, Simulation *simulation);
     virtual ~Fighter() = default;
 
-    void Escort(const Bomber &bomber);
+    void Escort();
+    void Escort(int target_id);
     void ChaseBomber(int target_id);
+    void ChaseFighter(int target_id);
+    void Evade(int target_id);
+    bool IterateCommon();
     void IterateAttacker(SimulationState sim_state);
     void IterateDefender(SimulationState sim_state);
+    void SwapSkillCheck();
 };
 
 #endif
