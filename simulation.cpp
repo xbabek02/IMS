@@ -34,7 +34,9 @@ void Simulation::LogStatus()
               << "Number of Defenders: " << defenders.size() << endl;
 }
 
-float ClashFunc(const Plane &chaser, const Plane &chasee)
+// TODO
+// maximum podle ktereho se bude porovnavat muze byt 10 nebo 5
+float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
 {
     std::vector<int> pos1 = chaser.GetPosition();
     std::vector<int> pos2 = chasee.GetPosition();
@@ -354,6 +356,18 @@ void Simulation::Iterate()
     // updating the targeting of bombers
     UpdateBomberTargeting();
     iteration++;
+
+    while (!toBeDestroyed.empty())
+    {
+        Plane &plane = GetById(std::get<1>(*toBeDestroyed.end()));
+        plane.Destroy(std::get<0>(*toBeDestroyed.end()));
+        toBeDestroyed.pop_back();
+    }
+}
+
+void Simulation::AddEnemyToDestruction(int attacker, int toDestroy)
+{
+    toBeDestroyed.push_back(make_tuple(attacker, toDestroy));
 }
 
 void Simulation::UpdateBomberTargeting()

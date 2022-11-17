@@ -53,8 +53,10 @@ public:
     int GetExperience() const;
     std::vector<int> GetPosAhead(int steps);
     void HeadTo(std::vector<int> pos);
+    void Destroy(int byId);
+    void IncrementTakedowns();
 
-    bool IsDangerouslyBehind(const Plane &plane) const;
+    bool IsDangerouslyBehind(const Plane &plane, int distance = 8) const;
     int IsAnyEnemyFighterDangerouslyBehind();
     bool IsTargetActive();
     bool IsBoundaryInDirection(Directions d);

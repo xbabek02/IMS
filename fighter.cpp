@@ -215,6 +215,14 @@ void Fighter::WhenChasing()
         }
     }
 
+    // SHOOTING
+    float clash = simulation->ClashFunc(*this, plane);
+    if (ShouldTryShooting(clash))
+    {
+        Shoot(clash);
+    }
+
+    // MOVING
     std::vector<int> future_pos;
 
     // chance to pick random direction if you are less experienced than your opponent
@@ -358,12 +366,48 @@ void Fighter::ChaseBomber(int target_id)
     this->target_id = target_id;
 }
 
-bool Fighter::ShouldTryShooting(Plane &plane)
+bool Fighter::ShouldTryShooting(float clash)
 {
+    if (number_of_battles > 50)
+    {
+        if (clash > 0.75)
+            return true;
+        else
+            return false;
+    }
+    else
+    {
+        if (clash > 0.45)
+            return true;
+        else
+            return false;
+    }
 }
 
-bool Fighter::Shoot(Plane &plane)
+void Fighter::Shoot(float clash)
 {
+    int clash_int = round(clash * 100);
+    if (rnd::range(0, 100) < clash_int)
+    {
+        simulation->AddEnemyToDestruction(GetID(), target_id);
+    }
+
+    // how many rounds of ammonition were wasted
+    if (number_of_battles > 50)
+    {
+        ammo_cnt -= rounds_per_second;
+    }
+    else
+    {
+        if (rnd::range(0, 1))
+        {
+            ammo_cnt -= rounds_per_second * 2;
+        }
+        else
+        {
+            ammo_cnt -= rounds_per_second;
+        }
+    }
 }
 
 void Fighter::ChaseFighter(int target_id)

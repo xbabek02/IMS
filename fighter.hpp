@@ -11,7 +11,8 @@ class Plane;
 class Fighter : public Plane
 {
 private:
-    int ammo_cnt;
+    int ammo_cnt = 1840;
+    int rounds_per_second = 75;
     int max_steps = 3;
     int assignedEscort = -1;
 
@@ -26,8 +27,9 @@ private:
     void WhenRetreating();
 
     void BackToBattlefield(Speed speed);
-    bool ShouldTryShooting(Plane &plane);
-    bool Shoot(Plane &plane);
+
+    bool ShouldTryShooting(float clash);
+    void Shoot(float clash);
 
 public:
     Fighter(std::string name, int battles, Team team, Simulation *simulation);

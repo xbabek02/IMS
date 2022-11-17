@@ -40,6 +40,7 @@ private:
 
     // for keeping track of which bombers are free to take on
     std::map<int, std::vector<int>> targetedBombers;
+    std::vector<tuple<int, int>> toBeDestroyed;
 
     int sim_width;
     int sim_length;
@@ -71,11 +72,13 @@ public:
     int GetIteration() const;
     const std::vector<int> &GetCenter() const;
     std::vector<int> GetTarget();
+    float ClashFunc(const Plane &chaser, const Plane &chasee);
     int GetTargetRadius() const;
     int GetClosestUnattackedBomber(const Plane &plane, bool orClosest = true);
     int GetClosestBomber(const Plane &plane);
     int GetAttackerId(const Plane &plane);
     int GetBattlefieldRadius() const;
+    void AddEnemyToDestruction(int attacker, int toDestroy);
 
     void DropBomb();
 
