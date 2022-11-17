@@ -34,8 +34,6 @@ void Simulation::LogStatus()
               << "Number of Defenders: " << defenders.size() << endl;
 }
 
-// TODO
-// maximum podle ktereho se bude porovnavat muze byt 10 nebo 5
 float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
 {
     std::vector<int> pos1 = chaser.GetPosition();
@@ -60,6 +58,8 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
     std::vector<int> newPoint = Distance::NewPointInDirection(chaser.GetDirection(), pos1, 3);
     int radius = Distance::CountDistance2D(pos1, newPoint);
 
+    float clash = 0.0;
+
     //spocitat smer
     if(directionChaser == directionChasee){
         multiplier = 1.5;
@@ -71,17 +71,17 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
             difference += 8;
 
         if (difference == 4){
-            multiplier = 0;
-        } //-> proti sobě
+            multiplier = 0.0;
+        } 
         else{
-            multiplier = 1 / difference;
+            multiplier = 1.0 / difference;
         }
     }
 
     //Spcocitani clash cisla
     if(Distance::InRadiusFrom2D(newPoint, pos2, radius)){
         //rozhoduje zkusenosti, smer, vzdalenost 
-        return ((((expChaser + (direction * multiplier)) - expChasee) / dist) + 2) / 4;
+        clash = ((((expChaser + (direction * multiplier)) - expChasee) / dist) + 2) / 4;
     }
     //venku, uhly
     else{
@@ -94,11 +94,18 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
             if(angle >= 270){
                 angle = abs(angle - 360);
             }
-            return ((((expChaser + (direction * multiplier)) - expChasee) / dist + angle) + 2) / 4;
+            clash = (((((expChaser + (direction * multiplier)) - expChasee) / dist - angle )) + 2) / 4;
         }
     }
-    
 
+    if(clash >= 0.95){
+        clash = 0.95;
+    }
+    else if(clash <= 0.1){
+        clash = 0.1;
+    }
+
+    return clash;
     // od 0 do 1
     //return (((expChaser + direction) - expChasee) / dist) + 2;
     // -2 do 2 -> 0 je 50%
@@ -106,6 +113,55 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
     // 2 je 50%
     // >= 3.8 sance 95%
     // <= 0.1 sance 10%
+}
+
+float Simulation::ClashFuncBomber(const Plane &chaser, const Bomber &bomber)
+{
+    std::vector<int> pos1 = chaser.GetPosition();
+    std::vector<int> pos2 = bomber.GetPosition();
+    //Is dangerously behind
+    //WhenChasing
+    int expChaser = chaser.GetExperience();
+    int expbomber = bomber.GetExperience();
+    int directionChaser = chaser.GetDirection();
+    int directionbomber = bomber.GetDirection();
+    
+    float direction = 20.0;
+    float multiplier = 0.0;
+    int dist = Distance::CountDistance2D(pos1, pos2) * 250;
+
+    //inside
+    //std::vector<int> newPoint = Distance::NewPointInDirection(chaser.GetDirection(), pos1, 3);
+    //int radius = Distance::CountDistance2D(pos1, newPoint);
+
+    //spocitat smer
+    if(directionChaser == directionbomber){
+        multiplier = 1.5;
+    }
+    else{
+        int difference = directionChaser - directionbomber;
+
+        if (difference < 0)
+            difference += 8;
+
+        if (difference == 4){
+            multiplier = 0.0;
+        } 
+        else{
+            multiplier = 1.0 / difference;
+        }
+    }
+
+    float clash = ((((expChaser + (direction * multiplier)) - expbomber) / dist) + 2) / 4;
+
+    if(clash >= 0.95){
+        clash = 0.95;
+    }
+    else if(clash <= 0.1){
+        clash = 0.1;
+    }
+
+    return clash;
 }
 
 void Simulation::Run(int speed)
