@@ -144,8 +144,8 @@ Directions Distance::BestPossibleFromCurrentDirection(Directions current, Direct
     if (current == desired)
         return current;
 
+    // getting the difference of directions
     int difference = current - desired;
-
     if (difference < 0)
         difference += 8;
 

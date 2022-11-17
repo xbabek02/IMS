@@ -68,22 +68,40 @@ void Fighter::IterateAttacker(SimulationState sim_state)
 
     switch (state)
     {
+        /*
+         * Stay close to your assigned escort, attack possible threat to it
+         */
     case Escorting:
         WhenEscorting();
         break;
 
+        /*
+         * Fly to the center of target and attack anyone you see close
+         */
     case FlyingToTarget:
         WhenFlyingToTarget();
         break;
 
+        /*
+         * Try to find most distant point from the attacker chasing you
+         * with a chance of getting behind him in the process
+         */
     case Evading:
         WhenEvading();
         break;
 
+        /*
+         * Stick close behind enemy and try to shoot it down
+         * when its most probable to hit
+         */
     case Chasing:
         WhenChasing();
         break;
 
+        /*
+         * Get out of the zone and retreat from fight if you are out of
+         * ammonition or fuel
+         */
     case Retreating:
         WhenRetreating();
         break;
@@ -108,22 +126,40 @@ void Fighter::IterateDefender(SimulationState sim_state)
 
     switch (state)
     {
+        /*
+         * Fly in medium speed to random point in the battlefield
+         */
     case Scouting:
         WhenScouting();
         break;
 
-    // find the target ==> then chase it
+        /*
+         *  Attack unnatacked or closest bomber
+         */
     case LookingForTarget:
         WhenLookingForTarget();
         break;
-    case Chasing:
-        WhenChasing();
-        break;
 
+        /*
+         * Try to find most distant point from the attacker chasing you
+         * with a chance of getting behind him in the process
+         */
     case Evading:
         WhenEvading();
         break;
 
+        /*
+         * Stick close behind enemy and try to shoot it down
+         * when its most probable to hit
+         */
+    case Chasing:
+        WhenChasing();
+        break;
+
+        /*
+         * Get out of the zone and retreat from fight if you are out of
+         * ammonition or fuel
+         */
     case Retreating:
         WhenRetreating();
         break;
@@ -135,6 +171,7 @@ void Fighter::IterateDefender(SimulationState sim_state)
 
 void Fighter::LookForDefenders()
 {
+    // attack any defender that gets close to your bomber
     if (state == Escorting)
     {
         auto bomber = simulation->GetById(target_id);
@@ -149,6 +186,7 @@ void Fighter::LookForDefenders()
             }
         }
     }
+    // attack any defender that gets close to you
     else if (state == FlyingToTarget)
     {
         for (auto &defender : simulation->GetAllEnemyFighters(*this))
@@ -171,7 +209,7 @@ void Fighter::WhenEscorting()
 
     do
     {
-        // keeping the z coordinate and wanting to fly next to it
+        // try to fly next to the bomber
         if (bomber_position[0] < position[0])
         {
             new_position[0] += 2;
@@ -198,6 +236,13 @@ void Fighter::WhenScouting()
 
 void Fighter::WhenLookingForTarget()
 {
+    if (simulation->GetAllBombers().size() == 0)
+    {
+        SetState(Scouting);
+        WhenScouting();
+        return;
+    }
+
     ChaseBomber(simulation->GetClosestUnattackedBomber(*this));
     WhenChasing();
 }
@@ -273,6 +318,8 @@ void Fighter::WhenEvading()
         return;
     }
 
+    // count the most distant position to move form attacker
+
     Directions left = static_cast<Directions>(((direction - 1) + 8) % 8);
     Directions right = static_cast<Directions>(((direction + 1) + 8) % 8);
 
@@ -291,16 +338,14 @@ void Fighter::WhenEvading()
         else
         {
             std::vector<int> *best;
-            // std::vector<int> *second_best;
             int distance;
             int distance_max = INT_MIN;
             for (int i = 0; i < 3; i++)
             {
-                distance = Distance::CountDistance2D(possibilities[i], target.GetPosition());
+                distance = Distance::CountDistance2D(possibilities[i], target.GetPosAhead(1));
                 if (distance > distance_max)
                 {
                     distance_max = distance;
-                    // second_best = best;
                     best = &(possibilities[i]);
                 }
             }

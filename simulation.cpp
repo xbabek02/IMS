@@ -79,22 +79,35 @@ void Simulation::Run(int speed)
             state = NotDetected;
             break;
 
+        /*
+         *  Attackers head to the zone, defenders scout randomly
+         */
         case NotDetected:
             Iterate();
             if (AnyAttackerInsideBoundary())
                 state = ZoneBreached;
             break;
 
+        /*
+         *  Defenders start attacking bombers
+         */
         case ZoneBreached:
             DefendersDefend();
             Iterate();
             state = Combat;
 
+        /*
+         * Continuous run of simulation to the end of it
+         */
         case Combat:
             Iterate();
             if (bombs_dropped >= bombs_goal)
             {
                 state = AttackersWin;
+            }
+            if (bombers.size() == 0)
+            {
+                state = DefendersWin;
             }
             break;
 
@@ -135,12 +148,20 @@ void Simulation::InitAttackers()
         int offset_y = ((i + increment) / 2) * boundary_y;
         int offset_x = ((i + increment) / 2) * boundary_x;
 
+        // initializing bomber parameters based on the formation position
         Bomber &bomber = bombers.at(i);
-        bomber.SetPosition({x + (offset_x * even), y + offset_y, rand() % 16 + 20});
+
+        // there is no room for another bomber in formation, place them randomly
+        if (x + (offset_x * even) < 0 || x + (offset_x * even) > sim_length)
+            bomber.SetPosition({rnd::range(0, sim_length - 1), y, rand() % 16 + 20});
+
+        else
+            bomber.SetPosition({x + (offset_x * even), y + offset_y, rand() % 16 + 20});
+
         bomber.SetState(PlaneState::FlyingToTarget);
         bomber.SetDirection(Distance::GetBestDirection(bomber.GetPosition(), center));
 
-        // assign escort
+        // assigning escort
         if (escort_counter < attackers.size())
         {
             auto position = bomber.GetPosition();
@@ -233,6 +254,8 @@ int Simulation::GetClosestUnattackedBomber(const Plane &plane, bool orClosest)
         }
     }
 
+    // if there are no bombers without attacker,
+    // return your intent based on orClosest parameter
     if (freeBombers.empty())
     {
         // return any closest bomber
@@ -547,6 +570,7 @@ std::vector<int> Simulation::RandomBattlefieldPoint()
 
     std::vector<int> point({Y[0], Y[1] + static_cast<int>(x_size), 0});
 
+    // fix the point based on quadrant
     switch (quadrant)
     {
     case 1:
