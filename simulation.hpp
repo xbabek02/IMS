@@ -74,6 +74,7 @@ public:
     const std::vector<int> &GetCenter() const;
     std::vector<int> GetTarget();
     float ClashFunc(const Plane &chaser, const Plane &chasee);
+    float ClashFuncBomber(const Plane &chaser, const Bomber &bomber);
     int GetTargetRadius() const;
     int GetClosestUnattackedBomber(const Plane &plane, bool orClosest = true);
     int GetClosestBomber(const Plane &plane);

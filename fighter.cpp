@@ -262,14 +262,15 @@ void Fighter::WhenChasing()
         }
     }
 
-    /*
+    
     // SHOOTING
     float clash = simulation->ClashFunc(*this, plane);
+    //cout << clash << endl;
     if (ShouldTryShooting(clash))
     {
         Shoot(clash);
     }
-    */
+    
 
     // MOVING
     std::vector<int> future_pos;
