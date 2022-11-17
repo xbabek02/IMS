@@ -51,14 +51,12 @@ private:
 
     void InitAttackers();
     void InitDefenders();
-    void InitTargetingMaps();
     void DefendersDefend();
     bool AnyAttackerInsideBoundary();
     void ExperienceSwapChase();
     void Iterate();
     void UpdateBomberTargeting();
     std::vector<int> RandomBattlefieldPoint();
-    void UpdateBomberChaser(int bomberId, int chaserId);
 
 public:
     Simulation(int battlefield_radius);
@@ -66,7 +64,7 @@ public:
     void AddBomber(const Bomber &bomber);
     void AddAttacker(const Fighter &fighter);
     void AddDefender(const Fighter &fighter);
-
+    void UpdateBomberChaser(int bomberId, int chaserId);
     std::vector<Bomber> &GetAllBombers();
     std::vector<Fighter> &GetAllEnemyFighters(const Plane &plane);
     Plane &GetById(int id);

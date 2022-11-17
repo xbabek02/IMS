@@ -34,21 +34,22 @@ void Simulation::LogStatus()
               << "Number of Defenders: " << defenders.size() << endl;
 }
 
-//TODO
-//maximum podle ktereho se bude porovnavat muze byt 10 nebo 5
-float ClashFunc(Plane chaser, Plane chasee){
+// TODO
+// maximum podle ktereho se bude porovnavat muze byt 10 nebo 5
+float ClashFunc(Plane chaser, Plane chasee)
+{
     std::vector<int> pos1 = chaser.GetPosition();
     std::vector<int> pos2 = chasee.GetPosition();
 
-    int expChaser = chaser.GetBattles();
-    int expChasee = chasee.GetBattles();  
+    int expChaser = chaser.GetExperience();
+    int expChasee = chasee.GetExperience();
 
     int direction = ((pos1[0] * pos2[0]) + (pos1[1] * pos2[1]));
-    direction == 0 ? 1 : direction; //TODO
+    direction == 0 ? 1 : direction; // TODO
     int dist = Distance::CountDistance(pos1, pos2) * 250;
 
-    //2 is to normalize the result
-    return (((expChaser + direction) - expChasee)/dist) + 2;
+    // 2 is to normalize the result
+    return (((expChaser + direction) - expChasee) / dist) + 2;
     // -2 do 2 -> 0 je 50%
     // po norm. je to 0 do 4
     // 2 je 50%
@@ -59,10 +60,10 @@ float ClashFunc(Plane chaser, Plane chasee){
     // historicky posadky bombarderu nepresahovaly 25 misi
     // sance na zniceni bombarderu nebo stihace se pohybuje kolem 50% pokud jsou si rovni
     // bombarder je ale silny celkem a ma vysokou sanci na sestrel i pri nizke zkusenosti
-    // bombarder se zmeni na chaser kdyz dojde na radu se branit, stale plati vyhoda 
+    // bombarder se zmeni na chaser kdyz dojde na radu se branit, stale plati vyhoda
     // smeru
 
-    // 
+    //
 }
 
 void Simulation::Run(int speed)
@@ -74,7 +75,6 @@ void Simulation::Run(int speed)
         case SimulationState::PreStart:
             InitAttackers();
             InitDefenders();
-            InitTargetingMaps();
             state = NotDetected;
             break;
 
@@ -161,15 +161,6 @@ void Simulation::InitAttackers()
         attackers[escort_counter].SetPosition({x, y, rnd::range(26, 33)});
         attackers[escort_counter].Escort(bombers[bomber_counter++].GetID());
     }
-}
-
-void Simulation::InitTargetingMaps()
-{
-    // intialization of bomber targeting, no bomber is targeted at the start
-    /*for (auto &bomber : bombers)
-    {
-        targetedBombers[bomber.GetID()] = std::vector<int>();
-    }*/
 }
 
 bool Simulation::InsideBoundary(const Plane &plane) const

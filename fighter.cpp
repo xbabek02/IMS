@@ -14,6 +14,11 @@ Fighter::Fighter(std::string name, int battles, Team team, Simulation *simulatio
 
 bool Fighter::IterateCommon()
 {
+    if (ammo_cnt == 0 || fuel == 0)
+    {
+        state = Retreating;
+    }
+
     // Dealing with battlefield boundary
     if (insideZone && !simulation->InsideBoundary(*this))
     {
@@ -38,7 +43,7 @@ bool Fighter::IterateCommon()
 
     // Setting evading state if in danger
     int enemyId = IsAnyEnemyFighterDangerouslyBehind();
-    if (enemyId != -1)
+    if (enemyId != -1 && state != Retreating)
     {
         Evade(enemyId);
     }
@@ -56,7 +61,7 @@ void Fighter::IterateAttacker(SimulationState sim_state)
     if (target_id != -1 && !IsTargetActive())
     {
         target_id = -1;
-        state = FlyingToTarget;
+        Escort();
     }
 
     switch (state)
@@ -351,6 +356,14 @@ void Fighter::ChaseBomber(int target_id)
     SetState(Chasing);
     simulation->UpdateBomberChaser(target_id, GetID());
     this->target_id = target_id;
+}
+
+bool Fighter::ShouldTryShooting(Plane &plane)
+{
+}
+
+bool Fighter::Shoot(Plane &plane)
+{
 }
 
 void Fighter::ChaseFighter(int target_id)

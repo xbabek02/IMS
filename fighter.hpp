@@ -26,6 +26,8 @@ private:
     void WhenRetreating();
 
     void BackToBattlefield(Speed speed);
+    bool ShouldTryShooting(Plane &plane);
+    bool Shoot(Plane &plane);
 
 public:
     Fighter(std::string name, int battles, Team team, Simulation *simulation);
