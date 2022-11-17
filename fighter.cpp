@@ -312,8 +312,13 @@ void Fighter::WhenRetreating()
 {
     int steps = fuel == 0 ? 2 : 3;
 
+    auto center = simulation->GetCenter();
+
+    std::vector<int> new_point(
+        Distance::NewPointInDirection(Distance::GetBestDirection(center, position), position, 5));
+
     for (int i = 0; i < steps; i++)
-        HeadTo(PointSameHigh(simulation->GetCenter()));
+        HeadTo(PointSameHigh(new_point));
 }
 
 void Fighter::BackToBattlefield(Speed speed)
