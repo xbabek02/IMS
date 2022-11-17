@@ -34,21 +34,38 @@ void Simulation::LogStatus()
               << "Number of Defenders: " << defenders.size() << endl;
 }
 
-// TODO
-// maximum podle ktereho se bude porovnavat muze byt 10 nebo 5
-float ClashFunc(Plane chaser, Plane chasee)
+float ClashFunc(const Plane &chaser, const Plane &chasee)
 {
     std::vector<int> pos1 = chaser.GetPosition();
     std::vector<int> pos2 = chasee.GetPosition();
-
+    //Is dangerously behind
+    //WhenChasing
     int expChaser = chaser.GetExperience();
     int expChasee = chasee.GetExperience();
+    int directionChaser = chaser.GetDirection();
+    int directionChasee = chasee.GetDirection();
+    int angle = Distance::AngleOfTwoPoints(pos1, pos2);
+    int direction = 0;
+    if(directionChaser == directionChasee && angle == 0){
+        //velka vyhoda
+    }
+    else{
+        if((directionChaser - directionChasee) == abs(4) && angle == 0){
+            //uplne proti sobe -> zadna vyhoda
+        }
 
-    int direction = ((pos1[0] * pos2[0]) + (pos1[1] * pos2[1]));
-    direction == 0 ? 1 : direction; // TODO
-    int dist = Distance::CountDistance(pos1, pos2) * 250;
+        //In radius from2D
+        //new point in direction
+        //vytvori kruznici -> pokud je v kruznici neresim uhel , pokud ne tak resim uhel (cim vetsi je ten uhel tim mensi sance) nad 90 a 
+        //pod 270 je to 0
 
-    // 2 is to normalize the result
+        //
+    }
+
+
+    int dist = Distance::CountDistance2D(pos1, pos2) * 250;
+
+    // od 0 do 1
     return (((expChaser + direction) - expChasee) / dist) + 2;
     // -2 do 2 -> 0 je 50%
     // po norm. je to 0 do 4
