@@ -38,76 +38,87 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
 {
     std::vector<int> pos1 = chaser.GetPosition();
     std::vector<int> pos2 = chasee.GetPosition();
-    //Is dangerously behind
-    //WhenChasing
+    // Is dangerously behind
+    // WhenChasing
     int expChaser = chaser.GetExperience();
     int expChasee = chasee.GetExperience();
     int directionChaser = chaser.GetDirection();
     int directionChasee = chasee.GetDirection();
-    
+
     float direction = 20.0;
     float multiplier = 0.0;
     int dist = Distance::CountDistance2D(pos1, pos2) * 250;
-   
-    //In radius from2D
-    //new point in direction
-    //vytvori kruznici -> pokud je v kruznici neresim uhel , pokud ne tak resim uhel (cim vetsi je ten uhel tim mensi sance) nad 90 a 
-    //pod 270 je to 0
 
-    //inside
+    // In radius from2D
+    // new point in direction
+    // vytvori kruznici -> pokud je v kruznici neresim uhel , pokud ne tak resim uhel (cim vetsi je ten uhel tim mensi sance) nad 90 a
+    // pod 270 je to 0
+
+    // inside
     std::vector<int> newPoint = Distance::NewPointInDirection(chaser.GetDirection(), pos1, 3);
     int radius = Distance::CountDistance2D(pos1, newPoint);
 
     float clash = 0.0;
 
-    //spocitat smer
-    if(directionChaser == directionChasee){
+    // spocitat smer
+    if (directionChaser == directionChasee)
+    {
         multiplier = 1.5;
     }
-    else{
+    else
+    {
         int difference = directionChaser - directionChasee;
 
         if (difference < 0)
             difference += 8;
 
-        if (difference == 4){
+        if (difference == 4)
+        {
             multiplier = 0.0;
-        } 
-        else{
+        }
+        else
+        {
             multiplier = 1.0 / difference;
         }
     }
 
-    //Spcocitani clash cisla
-    if(Distance::InRadiusFrom2D(newPoint, pos2, radius)){
-        //rozhoduje zkusenosti, smer, vzdalenost 
+    // Spcocitani clash cisla
+    if (Distance::InRadiusFrom2D(newPoint, pos2, radius))
+    {
+        // rozhoduje zkusenosti, smer, vzdalenost
         clash = ((((expChaser + (direction * multiplier)) - expChasee) / dist) + 2) / 4;
     }
-    //venku, uhly
-    else{
+    // venku, uhly
+    else
+    {
         int angle = Distance::AngleOfTwoPoints(pos1, pos2);
 
-        if(angle > 90 && angle < 270){
+        if (angle > 90 && angle < 270)
+        {
             return 0.0;
         }
-        else{
-            if(angle >= 270){
+        else
+        {
+            if (angle >= 270)
+            {
                 angle = abs(angle - 360);
             }
-            clash = (((((expChaser + (direction * multiplier)) - expChasee) / dist - angle )) + 2) / 4;
+            clash = (((((expChaser + (direction * multiplier)) - expChasee) / dist - angle)) + 2) / 4;
         }
     }
 
-    if(clash >= 0.95){
+    if (clash >= 0.95)
+    {
         clash = 0.95;
     }
-    else if(clash <= 0.1){
+    else if (clash <= 0.1)
+    {
         clash = 0.1;
     }
 
     return clash;
     // od 0 do 1
-    //return (((expChaser + direction) - expChasee) / dist) + 2;
+    // return (((expChaser + direction) - expChasee) / dist) + 2;
     // -2 do 2 -> 0 je 50%
     // po norm. je to 0 do 4
     // 2 je 50%
@@ -119,45 +130,51 @@ float Simulation::ClashFuncBomber(const Plane &chaser, const Bomber &bomber)
 {
     std::vector<int> pos1 = chaser.GetPosition();
     std::vector<int> pos2 = bomber.GetPosition();
-    //Is dangerously behind
-    //WhenChasing
+    // Is dangerously behind
+    // WhenChasing
     int expChaser = chaser.GetExperience();
     int expbomber = bomber.GetExperience();
     int directionChaser = chaser.GetDirection();
     int directionbomber = bomber.GetDirection();
-    
+
     float direction = 20.0;
     float multiplier = 0.0;
     int dist = Distance::CountDistance2D(pos1, pos2) * 250;
 
-    //inside
-    //std::vector<int> newPoint = Distance::NewPointInDirection(chaser.GetDirection(), pos1, 3);
-    //int radius = Distance::CountDistance2D(pos1, newPoint);
+    // inside
+    // std::vector<int> newPoint = Distance::NewPointInDirection(chaser.GetDirection(), pos1, 3);
+    // int radius = Distance::CountDistance2D(pos1, newPoint);
 
-    //spocitat smer
-    if(directionChaser == directionbomber){
+    // spocitat smer
+    if (directionChaser == directionbomber)
+    {
         multiplier = 1.5;
     }
-    else{
+    else
+    {
         int difference = directionChaser - directionbomber;
 
         if (difference < 0)
             difference += 8;
 
-        if (difference == 4){
+        if (difference == 4)
+        {
             multiplier = 0.0;
-        } 
-        else{
+        }
+        else
+        {
             multiplier = 1.0 / difference;
         }
     }
 
     float clash = ((((expChaser + (direction * multiplier)) - expbomber) / dist) + 2) / 4;
 
-    if(clash >= 0.95){
+    if (clash >= 0.95)
+    {
         clash = 0.95;
     }
-    else if(clash <= 0.1){
+    else if (clash <= 0.1)
+    {
         clash = 0.1;
     }
 
@@ -199,7 +216,7 @@ void Simulation::Run(int speed)
          */
         case Combat:
             Iterate();
-            if (bombs_dropped >= bombs_goal)
+            if (bombs_dropped >= bombs_goal || defenders.size() == 0)
             {
                 state = AttackersWin;
             }
@@ -208,6 +225,13 @@ void Simulation::Run(int speed)
                 state = DefendersWin;
             }
             break;
+        case AttackersWin:
+            cout << "Attackers win!" << endl;
+            return;
+
+        case DefendersWin:
+            cout << "Defenders win!" << endl;
+            return;
 
         default:
             break;
@@ -424,64 +448,112 @@ void Simulation::Iterate()
     for (auto plane : attackers)
     {
         plane.IterateAttacker(state);
-
-        if (plane.GetActive())
-        {
-            newAttackers.push_back(plane);
-        }
-        else
-        {
-            not_active.push_back(plane);
-        }
+        newAttackers.push_back(plane);
     }
 
     for (auto plane : defenders)
     {
         plane.IterateDefender(state);
-
-        if (plane.GetActive())
-        {
-            newDefenders.push_back(plane);
-        }
-        else
-        {
-            not_active.push_back(plane);
-        }
+        newDefenders.push_back(plane);
     }
 
     for (auto plane : bombers)
     {
         plane.Iterate(state);
-
-        if (plane.GetActive())
-        {
-            newBombers.push_back(plane);
-        }
-        else
-        {
-            not_active.push_back(plane);
-        }
+        newBombers.push_back(plane);
     }
 
     attackers = newAttackers;
     bombers = newBombers;
     defenders = newDefenders;
 
+    std::vector<int> already_destroyed;
+    while (!toBeDestroyed.empty())
+    {
+        auto vector_end = *(toBeDestroyed.end() - 1);
+
+        if (std::find(already_destroyed.begin(),
+                      already_destroyed.end(),
+                      std::get<0>(vector_end)) != already_destroyed.end())
+        {
+            toBeDestroyed.pop_back();
+            continue;
+        }
+        Plane &plane = GetById(std::get<1>(vector_end));
+        plane.Destroy(std::get<0>(vector_end));
+        toBeDestroyed.pop_back();
+
+        already_destroyed.push_back(std::get<1>(vector_end));
+    }
+
+    DeactivatePlanes();
+
     // updating the targeting of bombers
     UpdateBomberTargeting();
     iteration++;
-
-    while (!toBeDestroyed.empty())
-    {
-        Plane &plane = GetById(std::get<1>(*toBeDestroyed.end()));
-        plane.Destroy(std::get<0>(*toBeDestroyed.end()));
-        toBeDestroyed.pop_back();
-    }
 }
 
 void Simulation::AddEnemyToDestruction(int attacker, int toDestroy)
 {
     toBeDestroyed.push_back(make_tuple(attacker, toDestroy));
+}
+
+void Simulation::DeactivatePlanes()
+{
+    auto it = bombers.begin();
+    while (it != bombers.end())
+    {
+        if (!it->GetActive())
+        {
+            targetedBombers.erase(it->GetID());
+            not_active.push_back(*it);
+            it = bombers.erase(it);
+        }
+        else
+        {
+            it++;
+        }
+    }
+
+    auto it2 = attackers.begin();
+    while (it2 != attackers.end())
+    {
+        if (!it2->GetActive())
+        {
+            not_active.push_back(*it2);
+            it2 = attackers.erase(it2);
+        }
+        else
+        {
+            it2++;
+        }
+    }
+
+    it2 = defenders.begin();
+    while (it2 != defenders.end())
+    {
+        if (!it2->GetActive())
+        {
+            not_active.push_back(*it2);
+            it2 = defenders.erase(it2);
+        }
+        else
+        {
+            it2++;
+        }
+    }
+}
+
+bool Simulation::PlaneActiveById(int id)
+{
+    for (auto plane : GetNotActive())
+    {
+        if (plane.GetID() == id)
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 void Simulation::UpdateBomberTargeting()
@@ -491,6 +563,13 @@ void Simulation::UpdateBomberTargeting()
         auto &vec = it->second;
         for (auto inner_it = vec.begin(); inner_it != vec.end();)
         {
+            if (!PlaneActiveById(*inner_it))
+            {
+                inner_it = vec.erase(inner_it);
+                continue;
+            }
+
+            // state changed but is still active
             auto plane = GetById(*inner_it);
             if (plane.GetTargetId() != it->first || plane.GetState() != Chasing)
             {
@@ -576,6 +655,11 @@ Grid Simulation::ToGrid()
     }
 
     return grid;
+}
+
+std::vector<Plane> Simulation::GetNotActive()
+{
+    return not_active;
 }
 
 Plane &Simulation::GetById(int id)

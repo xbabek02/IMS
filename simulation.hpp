@@ -4,6 +4,10 @@
 #include <vector>
 #include <iostream>
 #include <cmath>
+#include <algorithm>
+#include <unistd.h>
+#include <map>
+#include <climits>
 
 #include "fighter.hpp"
 #include "bomber.hpp"
@@ -13,9 +17,6 @@
 #include "distance.hpp"
 #include "enums.hpp"
 #include "random.hpp"
-#include <unistd.h>
-#include <map>
-#include <climits>
 
 class Plane;
 class Bomber;
@@ -59,6 +60,7 @@ private:
     void Iterate();
     void UpdateBomberTargeting();
     std::vector<int> RandomBattlefieldPoint();
+    void DeactivatePlanes();
 
 public:
     Simulation(int battlefield_radius);
@@ -69,7 +71,9 @@ public:
     void UpdateBomberChaser(int bomberId, int chaserId);
     std::vector<Bomber> &GetAllBombers();
     std::vector<Fighter> &GetAllEnemyFighters(const Plane &plane);
+    std::vector<Plane> GetNotActive();
     Plane &GetById(int id);
+    bool PlaneActiveById(int id);
     int GetIteration() const;
     const std::vector<int> &GetCenter() const;
     std::vector<int> GetTarget();

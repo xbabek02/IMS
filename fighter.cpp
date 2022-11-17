@@ -201,6 +201,15 @@ void Fighter::LookForDefenders()
 
 void Fighter::WhenEscorting()
 {
+    // if bomber was destroyed or retreated
+    if (!IsTargetActive())
+    {
+        target_id = -1;
+        SetState(FlyingToTarget);
+        WhenFlyingToTarget();
+        return;
+    }
+
     auto bomber_position = GetTarget().GetPosition();
     std::vector<int> new_position(bomber_position);
     int steps = 0;
@@ -262,15 +271,13 @@ void Fighter::WhenChasing()
         }
     }
 
-    
     // SHOOTING
     float clash = simulation->ClashFunc(*this, plane);
-    //cout << clash << endl;
+    // cout << clash << endl;
     if (ShouldTryShooting(clash))
     {
         Shoot(clash);
     }
-    
 
     // MOVING
     std::vector<int> future_pos;
@@ -307,6 +314,23 @@ void Fighter::WhenFlyingToTarget()
 
 void Fighter::WhenEvading()
 {
+    if (!IsTargetActive())
+    {
+        if (team == Attackers)
+        {
+            target_id = -1;
+            SetState(FlyingToTarget);
+            WhenFlyingToTarget();
+            return;
+        }
+        else
+        {
+            target_id = -1;
+            SetState(LookingForTarget);
+            WhenLookingForTarget();
+            return;
+        }
+    }
     auto target = GetTarget();
 
     int distance = Distance::CountDistance2D(target.GetPosition(), position);
@@ -376,6 +400,11 @@ void Fighter::BackToBattlefield(Speed speed)
 
 void Fighter::SwapSkillCheck()
 {
+    if (!IsTargetActive())
+    {
+        return;
+    }
+
     auto &target = GetTarget();
     int distance = Distance::CountDistance2D(target.GetPosition(), position);
 

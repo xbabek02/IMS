@@ -210,7 +210,14 @@ Directions Plane::GetDirection() const
 
 bool Plane::IsTargetActive()
 {
-    return GetTarget().GetActive();
+    for (auto plane : simulation->GetNotActive())
+    {
+        if (plane.GetID() == target_id)
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 int Plane::GetTargetId() const
