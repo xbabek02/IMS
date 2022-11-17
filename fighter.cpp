@@ -10,6 +10,8 @@ Fighter::Fighter(std::string name, int battles, Team team, Simulation *simulatio
     {
         insideZone = true;
     }
+
+    fuel = 200;
 }
 
 bool Fighter::IterateCommon()
@@ -215,12 +217,14 @@ void Fighter::WhenChasing()
         }
     }
 
+    /*
     // SHOOTING
     float clash = simulation->ClashFunc(*this, plane);
     if (ShouldTryShooting(clash))
     {
         Shoot(clash);
     }
+    */
 
     // MOVING
     std::vector<int> future_pos;

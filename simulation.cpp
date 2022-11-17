@@ -75,6 +75,7 @@ void Simulation::Run(int speed)
         case SimulationState::PreStart:
             InitAttackers();
             InitDefenders();
+            InitTargetingMap();
             state = NotDetected;
             break;
 
@@ -137,6 +138,7 @@ void Simulation::InitAttackers()
         Bomber &bomber = bombers.at(i);
         bomber.SetPosition({x + (offset_x * even), y + offset_y, rand() % 16 + 20});
         bomber.SetState(PlaneState::FlyingToTarget);
+        bomber.SetDirection(Distance::GetBestDirection(bomber.GetPosition(), center));
 
         // assign escort
         if (escort_counter < attackers.size())
@@ -148,6 +150,7 @@ void Simulation::InitAttackers()
 
             attackers[escort_counter].SetPosition(position);
             attackers[escort_counter].Escort(bomber.GetID());
+            attackers[escort_counter].SetDirection(bomber.GetDirection());
             escort_counter++;
         }
     }
@@ -197,6 +200,15 @@ void Simulation::DefendersDefend()
     for (Fighter &plane : defenders)
     {
         plane.SetState(LookingForTarget);
+    }
+}
+
+void Simulation::InitTargetingMap()
+{
+    for (auto &bomber : bombers)
+    {
+        targetedBombers[bomber.GetID()].push_back(0);
+        targetedBombers[bomber.GetID()].pop_back();
     }
 }
 
