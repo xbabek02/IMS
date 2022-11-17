@@ -34,6 +34,37 @@ void Simulation::LogStatus()
               << "Number of Defenders: " << defenders.size() << endl;
 }
 
+//TODO
+//maximum podle ktereho se bude porovnavat muze byt 10 nebo 5
+float ClashFunc(Plane chaser, Plane chasee){
+    std::vector<int> pos1 = chaser.GetPosition();
+    std::vector<int> pos2 = chasee.GetPosition();
+
+    int expChaser = chaser.GetBattles();
+    int expChasee = chasee.GetBattles();  
+
+    int direction = ((pos1[0] * pos2[0]) + (pos1[1] * pos2[1]));
+    direction == 0 ? 1 : direction; //TODO
+    int dist = Distance::CountDistance(pos1, pos2) * 250;
+
+    //2 is to normalize the result
+    return (((expChaser + direction) - expChasee)/dist) + 2;
+    // -2 do 2 -> 0 je 50%
+    // po norm. je to 0 do 4
+    // 2 je 50%
+    // >= 3.8 sance 95%
+    // <= 0 sance 0%
+
+    // bombarder vs stihac -> volaji se pro oba, prvni ale bombarder
+    // historicky posadky bombarderu nepresahovaly 25 misi
+    // sance na zniceni bombarderu nebo stihace se pohybuje kolem 50% pokud jsou si rovni
+    // bombarder je ale silny celkem a ma vysokou sanci na sestrel i pri nizke zkusenosti
+    // bombarder se zmeni na chaser kdyz dojde na radu se branit, stale plati vyhoda 
+    // smeru
+
+    // 
+}
+
 void Simulation::Run(int speed)
 {
     while (true)
