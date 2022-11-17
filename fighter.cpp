@@ -10,6 +10,8 @@ Fighter::Fighter(std::string name, int battles, Team team, Simulation *simulatio
     {
         insideZone = true;
     }
+
+    fuel = 200;
 }
 
 bool Fighter::IterateCommon()
@@ -215,12 +217,14 @@ void Fighter::WhenChasing()
         }
     }
 
+    /*
     // SHOOTING
     float clash = simulation->ClashFunc(*this, plane);
     if (ShouldTryShooting(clash))
     {
         Shoot(clash);
     }
+    */
 
     // MOVING
     std::vector<int> future_pos;
@@ -308,8 +312,13 @@ void Fighter::WhenRetreating()
 {
     int steps = fuel == 0 ? 2 : 3;
 
+    auto center = simulation->GetCenter();
+
+    std::vector<int> new_point(
+        Distance::NewPointInDirection(Distance::GetBestDirection(center, position), position, 5));
+
     for (int i = 0; i < steps; i++)
-        HeadTo(PointSameHigh(simulation->GetCenter()));
+        HeadTo(PointSameHigh(new_point));
 }
 
 void Fighter::BackToBattlefield(Speed speed)

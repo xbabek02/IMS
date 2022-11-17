@@ -52,6 +52,7 @@ private:
 
     void InitAttackers();
     void InitDefenders();
+    void InitTargetingMap();
     void DefendersDefend();
     bool AnyAttackerInsideBoundary();
     void ExperienceSwapChase();
