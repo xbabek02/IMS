@@ -149,14 +149,14 @@ int Plane::IsAnyEnemyFighterDangerouslyBehind()
     return -1;
 }
 
-bool Plane::IsDangerouslyBehind(const Plane &plane) const
+bool Plane::IsDangerouslyBehind(const Plane &plane, int distance) const
 {
     if (plane.GetTargetId() != GetID() || plane.GetState() != Chasing)
     {
         return false;
     }
 
-    if (Distance::CountDistance2D(position, plane.GetPosition()) > 8)
+    if (Distance::CountDistance2D(position, plane.GetPosition()) > distance)
     {
         return false;
     }
@@ -169,6 +169,18 @@ bool Plane::IsDangerouslyBehind(const Plane &plane) const
         return true;
     }
     return false;
+}
+
+void Plane::Destroy(int byId)
+{
+    auto &attacker = simulation->GetById(byId);
+    SetState(Destroyed);
+    attacker.IncrementTakedowns();
+}
+
+void Plane::IncrementTakedowns()
+{
+    takedowns++;
 }
 
 std::vector<int> Plane::GetPosAhead(int steps)
