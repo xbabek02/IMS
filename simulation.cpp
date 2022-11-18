@@ -60,11 +60,13 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
 
     float clash = 0.0;
 
-    if(dist >= 1000){
+    if (dist >= 1000)
+    {
         multiplier = 0.01;
     }
-    else{
-         // spocitat smer
+    else
+    {
+        // spocitat smer
         if (directionChaser == directionChasee)
         {
             multiplier = 0.4 * (250.0 / dist);
@@ -85,7 +87,7 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
 
             else if (difference > 4)
                 multiplier = 0.3 / (abs(difference - 8.0));
-            
+
             multiplier = multiplier * (250.0 / dist);
         }
     }
@@ -97,8 +99,8 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
         cout << "dir: ";
         cout << direction * multiplier << endl;
         cout << multiplier << endl;
-        //TODO: FLOATING POINT EXCEPTION (INF)
-        clash = (abs(float(expChaser - expChasee)) / dist ) + (direction * multiplier); 
+        // TODO: FLOATING POINT EXCEPTION (INF)
+        clash = (abs(float(expChaser - expChasee)) / dist) + (direction * multiplier);
     }
     // venku, uhly
     else
@@ -120,9 +122,8 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
             cout << "dir: ";
             cout << direction * multiplier << endl;
             cout << multiplier << endl;
-            
-            clash = (abs(float(expChaser - expChasee)) / (dist + angle) ) + (direction * multiplier); 
-            
+
+            clash = (abs(float(expChaser - expChasee)) / (dist + angle)) + (direction * multiplier);
         }
     }
 
@@ -144,12 +145,12 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
     // od 0 do 1
 }
 
-//mit na pameti, ze bomber je tady "chaser" a chaser je chasee
+// mit na pameti, ze bomber je tady "chaser" a chaser je chasee
 float Simulation::ClashFuncBomber(const Plane &chaser, const Bomber &bomber)
 {
     std::vector<int> pos1 = chaser.GetPosition();
     std::vector<int> pos2 = bomber.GetPosition();
-    
+
     int expChaser = chaser.GetExperience();
     int expbomber = bomber.GetExperience();
     int directionChaser = chaser.GetDirection();
@@ -165,11 +166,13 @@ float Simulation::ClashFuncBomber(const Plane &chaser, const Bomber &bomber)
     // pod 270 je to 0
     float clash = 0.0;
 
-    if(dist >= 1000){
+    if (dist >= 1000)
+    {
         multiplier = 0.01;
     }
-    else{
-         // spocitat smer
+    else
+    {
+        // spocitat smer
         if (directionChaser == directionbomber)
         {
             multiplier = 0.4 * (250.0 / dist);
@@ -190,12 +193,12 @@ float Simulation::ClashFuncBomber(const Plane &chaser, const Bomber &bomber)
 
             else if (difference > 4)
                 multiplier = 0.3 / (abs(difference - 8.0));
-            
+
             multiplier = multiplier * (250.0 / dist);
         }
     }
-    //Bomber can shoot to all sides so no angle is needed
-    clash = (abs(float(expbomber - expChaser)) / (dist) ) + (direction * multiplier); 
+    // Bomber can shoot to all sides so no angle is needed
+    clash = (abs(float(expbomber - expChaser)) / (dist)) + (direction * multiplier);
 
     if (clash >= 0.95)
     {
@@ -256,11 +259,11 @@ void Simulation::Run(int speed)
         case AttackersWin:
             cout << "Attackers win!" << endl;
 
-            cout << "Defenders left: " ;
+            cout << "Defenders left: ";
             cout << defenders.size() << endl;
-            cout << "Escort left: " ;
+            cout << "Escort left: ";
             cout << attackers.size() << endl;
-            cout << "Bombers left: " ;
+            cout << "Bombers left: ";
             cout << bombers.size() << endl;
             return;
 
@@ -268,11 +271,11 @@ void Simulation::Run(int speed)
             cout << "Defenders win!" << endl;
 
             cout << "Attackers win!" << endl;
-            cout << "Defenders left: " ;
+            cout << "Defenders left: ";
             cout << defenders.size() << endl;
-            cout << "Escort left: " ;
+            cout << "Escort left: ";
             cout << attackers.size() << endl;
-            cout << "Bombers left: " ;
+            cout << "Bombers left: ";
             cout << bombers.size() << endl;
             return;
 
@@ -526,7 +529,7 @@ void Simulation::Iterate()
         plane.Destroy(std::get<0>(vector_end));
         toBeDestroyed.pop_back();
 
-        already_destroyed.push_back(std::get<1>(vector_end));
+        already_destroyed.push_back(std::get<0>(vector_end));
     }
 
     DeactivatePlanes();

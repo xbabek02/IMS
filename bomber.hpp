@@ -14,7 +14,7 @@ public:
 
     void Iterate(SimulationState sim_state);
     bool ShouldTryShooting(float clash);
-    void Shoot(float clash);
+    void Shoot(float clash, int whoId);
 
     virtual ~Bomber() = default;
 };

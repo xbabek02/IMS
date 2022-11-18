@@ -20,17 +20,18 @@ void Bomber::Iterate(SimulationState sim_state)
     else
         last_dropped = false;
 
-    /*int fighter = Plane::IsAnyEnemyFighterDangerouslyBehind();
-    if(fighter != -1){
+    int fighterId = Plane::IsAnyEnemyFighterDangerouslyBehind();
+    if (fighterId != -1)
+    {
         // SHOOTING
-        Plane &plane = simulation->GetById(target_id);
-        float clash = simulation->ClashFuncBomber(plane, *this);
-        
+        auto fighter = simulation->GetById(fighterId);
+        float clash = simulation->ClashFuncBomber(fighter, *this);
+
         if (ShouldTryShooting(clash))
         {
-            Shoot(clash);
+            Shoot(clash, fighterId);
         }
-    }*/
+    }
 }
 
 bool Bomber::ShouldTryShooting(float clash)
@@ -51,11 +52,11 @@ bool Bomber::ShouldTryShooting(float clash)
     }
 }
 
-void Bomber::Shoot(float clash)
+void Bomber::Shoot(float clash, int whoId)
 {
     int clash_int = round(clash * 100);
     if (rnd::range(0, 100) < clash_int)
     {
-        simulation->AddEnemyToDestruction(GetID(), target_id);
+        simulation->AddEnemyToDestruction(GetID(), whoId);
     }
 }
