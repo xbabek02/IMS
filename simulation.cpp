@@ -45,7 +45,7 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
     int directionChaser = chaser.GetDirection();
     int directionChasee = chasee.GetDirection();
 
-    float direction = 20.0;
+    float direction = 1;
     float multiplier = 0.0;
     int dist = Distance::CountDistance2D(pos1, pos2) * 250;
 
@@ -60,33 +60,45 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
 
     float clash = 0.0;
 
-    // spocitat smer
-    if (directionChaser == directionChasee)
-    {
-        multiplier = 1.5;
+    if(dist >= 1000){
+        multiplier = 0.01;
     }
-    else
-    {
-        int difference = directionChaser - directionChasee;
-
-        if (difference < 0)
-            difference += 8;
-
-        if (difference == 4)
+    else{
+         // spocitat smer
+        if (directionChaser == directionChasee)
         {
-            multiplier = 0.0;
+            multiplier = 0.4 * (250.0 / dist);
         }
         else
         {
-            multiplier = 1.0 / difference;
+            int difference = directionChaser - directionChasee;
+
+            if (difference < 0)
+                difference += 8;
+
+            if (difference == 4)
+            {
+                multiplier = 0.0;
+            }
+            else if (difference < 4)
+                multiplier = 0.3 / (abs(difference));
+
+            else if (difference > 4)
+                multiplier = 0.3 / (abs(difference - 8.0));
+            
+            multiplier = multiplier * (250.0 / dist);
         }
     }
 
-    // Spcocitani clash cisla
+    // Spocitani clash cisla
     if (Distance::InRadiusFrom2D(newPoint, pos2, radius))
     {
         // rozhoduje zkusenosti, smer, vzdalenost
-        clash = ((((expChaser + (direction * multiplier)) - expChasee) / dist) + 2) / 4;
+        cout << "dir: ";
+        cout << direction * multiplier << endl;
+        cout << multiplier << endl;
+        //TODO: FLOATING POINT EXCEPTION (INF)
+        clash = (abs(float(expChaser - expChasee)) / dist ) + (direction * multiplier); 
     }
     // venku, uhly
     else
@@ -103,7 +115,14 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
             {
                 angle = abs(angle - 360);
             }
-            clash = (((((expChaser + (direction * multiplier)) - expChasee) / dist - angle)) + 2) / 4;
+            cout << "uhel: ";
+            cout << angle << endl;
+            cout << "dir: ";
+            cout << direction * multiplier << endl;
+            cout << multiplier << endl;
+            
+            clash = (abs(float(expChaser - expChasee)) / (dist + angle) ) + (direction * multiplier); 
+            
         }
     }
 
@@ -111,71 +130,80 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
     {
         clash = 0.95;
     }
-    else if (clash <= 0.1)
+    else if (clash <= 0.05)
     {
-        clash = 0.1;
+        clash = 0.05;
     }
+    cout << chaser.GetExperience() << endl;
+    cout << chasee.GetExperience() << endl;
+    cout << dist << endl;
+    cout << "clash: ";
+    cout << clash << endl;
 
     return clash;
     // od 0 do 1
-    // return (((expChaser + direction) - expChasee) / dist) + 2;
-    // -2 do 2 -> 0 je 50%
-    // po norm. je to 0 do 4
-    // 2 je 50%
-    // >= 3.8 sance 95%
-    // <= 0.1 sance 10%
 }
 
+//mit na pameti, ze bomber je tady "chaser" a chaser je chasee
 float Simulation::ClashFuncBomber(const Plane &chaser, const Bomber &bomber)
 {
     std::vector<int> pos1 = chaser.GetPosition();
     std::vector<int> pos2 = bomber.GetPosition();
-    // Is dangerously behind
-    // WhenChasing
+    
     int expChaser = chaser.GetExperience();
     int expbomber = bomber.GetExperience();
     int directionChaser = chaser.GetDirection();
     int directionbomber = bomber.GetDirection();
 
-    float direction = 20.0;
+    float direction = 1;
     float multiplier = 0.0;
     int dist = Distance::CountDistance2D(pos1, pos2) * 250;
 
-    // inside
-    // std::vector<int> newPoint = Distance::NewPointInDirection(chaser.GetDirection(), pos1, 3);
-    // int radius = Distance::CountDistance2D(pos1, newPoint);
+    // In radius from2D
+    // new point in direction
+    // vytvori kruznici -> pokud je v kruznici neresim uhel , pokud ne tak resim uhel (cim vetsi je ten uhel tim mensi sance) nad 90 a
+    // pod 270 je to 0
+    float clash = 0.0;
 
-    // spocitat smer
-    if (directionChaser == directionbomber)
-    {
-        multiplier = 1.5;
+    if(dist >= 1000){
+        multiplier = 0.01;
     }
-    else
-    {
-        int difference = directionChaser - directionbomber;
-
-        if (difference < 0)
-            difference += 8;
-
-        if (difference == 4)
+    else{
+         // spocitat smer
+        if (directionChaser == directionbomber)
         {
-            multiplier = 0.0;
+            multiplier = 0.4 * (250.0 / dist);
         }
         else
         {
-            multiplier = 1.0 / difference;
+            int difference = directionbomber - directionChaser;
+
+            if (difference < 0)
+                difference += 8;
+
+            if (difference == 4)
+            {
+                multiplier = 0.0;
+            }
+            else if (difference < 4)
+                multiplier = 0.3 / (abs(difference));
+
+            else if (difference > 4)
+                multiplier = 0.3 / (abs(difference - 8.0));
+            
+            multiplier = multiplier * (250.0 / dist);
         }
     }
-
-    float clash = ((((expChaser + (direction * multiplier)) - expbomber) / dist) + 2) / 4;
+    //Bomber can shoot to all sides so no angle is needed
+    clash = (abs(float(expbomber - expChaser)) / (dist) ) + (direction * multiplier); 
 
     if (clash >= 0.95)
     {
         clash = 0.95;
     }
-    else if (clash <= 0.1)
+    else if (clash <= 0.05)
     {
-        clash = 0.1;
+        clash = 0.05;
     }
 
     return clash;
@@ -227,10 +255,25 @@ void Simulation::Run(int speed)
             break;
         case AttackersWin:
             cout << "Attackers win!" << endl;
+
+            cout << "Defenders left: " ;
+            cout << defenders.size() << endl;
+            cout << "Escort left: " ;
+            cout << attackers.size() << endl;
+            cout << "Bombers left: " ;
+            cout << bombers.size() << endl;
             return;
 
         case DefendersWin:
             cout << "Defenders win!" << endl;
+
+            cout << "Attackers win!" << endl;
+            cout << "Defenders left: " ;
+            cout << defenders.size() << endl;
+            cout << "Escort left: " ;
+            cout << attackers.size() << endl;
+            cout << "Bombers left: " ;
+            cout << bombers.size() << endl;
             return;
 
         default:
