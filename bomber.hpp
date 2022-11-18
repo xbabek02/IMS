@@ -13,6 +13,8 @@ public:
     Bomber(std::string name, int battles, Simulation *simulation);
 
     void Iterate(SimulationState sim_state);
+    bool ShouldTryShooting(float clash);
+    void Shoot(float clash);
 
     virtual ~Bomber() = default;
 };
