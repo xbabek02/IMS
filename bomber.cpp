@@ -6,13 +6,12 @@ Bomber::Bomber(std::string name, int battles, Simulation *simulation) : Plane(na
 
 void Bomber::Iterate(SimulationState sim_state)
 {
-    if (state == FlyingToTarget)
+
+    for (int i = 0; i < max_steps; i++)
     {
-        for (int i = 0; i < max_steps; i++)
-        {
-            HeadTo(simulation->GetTarget());
-        }
+        HeadTo(simulation->GetTarget());
     }
+
     if (!last_dropped)
     {
         if (Distance::InRadiusFrom2D(simulation->GetTarget(), position, simulation->GetTargetRadius()))
