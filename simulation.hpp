@@ -47,7 +47,7 @@ private:
     int sim_length;
 
     int bombs_dropped = 0;
-    int bombs_goal = 100;
+    int bombs_goal = 150;
 
     SimulationState state = SimulationState::PreStart;
 

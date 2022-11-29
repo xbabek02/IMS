@@ -47,7 +47,7 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
 
     float direction = 1;
     float multiplier = 0.0;
-    int dist = Distance::CountDistance2D(pos1, pos2) * 250;
+    float dist = Distance::CountDistance2D(pos1, pos2) * 250.0;
 
     // In radius from2D
     // new point in direction
@@ -69,7 +69,7 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
         // spocitat smer
         if (directionChaser == directionChasee)
         {
-            multiplier = 0.4 * (250.0 / dist);
+            multiplier = 0.2 * (250.0 / dist);
         }
         else
         {
@@ -83,10 +83,10 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
                 multiplier = 0.0;
             }
             else if (difference < 4)
-                multiplier = 0.3 / (abs(difference));
+                multiplier = 0.1 / (abs(difference));
 
             else if (difference > 4)
-                multiplier = 0.3 / (abs(difference - 8.0));
+                multiplier = 0.1 / (abs(difference - 8.0));
 
             multiplier = multiplier * (250.0 / dist);
         }
@@ -96,11 +96,7 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
     if (Distance::InRadiusFrom2D(newPoint, pos2, radius))
     {
         // rozhoduje zkusenosti, smer, vzdalenost
-        cout << "dir: ";
-        cout << direction * multiplier << endl;
-        cout << multiplier << endl;
-        // TODO: FLOATING POINT EXCEPTION (INF)
-        clash = (abs(float(expChaser - expChasee)) / dist) + (direction * multiplier);
+        clash = (abs(float(expChaser)) / ((dist / 7) + expChasee)) + (direction * multiplier);
     }
     // venku, uhly
     else
@@ -117,13 +113,8 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
             {
                 angle = abs(angle - 360);
             }
-            cout << "uhel: ";
-            cout << angle << endl;
-            cout << "dir: ";
-            cout << direction * multiplier << endl;
-            cout << multiplier << endl;
 
-            clash = (abs(float(expChaser - expChasee)) / (dist + angle)) + (direction * multiplier);
+            clash = (abs(float(expChaser)) / ((dist / 5) + angle + expChasee)) + (direction * multiplier);
         }
     }
 
@@ -135,11 +126,6 @@ float Simulation::ClashFunc(const Plane &chaser, const Plane &chasee)
     {
         clash = 0.05;
     }
-    cout << chaser.GetExperience() << endl;
-    cout << chasee.GetExperience() << endl;
-    cout << dist << endl;
-    cout << "clash: ";
-    cout << clash << endl;
 
     return clash;
     // od 0 do 1
@@ -158,7 +144,7 @@ float Simulation::ClashFuncBomber(const Plane &chaser, const Bomber &bomber)
 
     float direction = 1;
     float multiplier = 0.0;
-    int dist = Distance::CountDistance2D(pos1, pos2) * 250;
+    float dist = Distance::CountDistance2D(pos1, pos2) * 250.0;
 
     // In radius from2D
     // new point in direction
@@ -175,7 +161,7 @@ float Simulation::ClashFuncBomber(const Plane &chaser, const Bomber &bomber)
         // spocitat smer
         if (directionChaser == directionbomber)
         {
-            multiplier = 0.4 * (250.0 / dist);
+            multiplier = 0.2 * (250.0 / dist);
         }
         else
         {
@@ -189,16 +175,16 @@ float Simulation::ClashFuncBomber(const Plane &chaser, const Bomber &bomber)
                 multiplier = 0.0;
             }
             else if (difference < 4)
-                multiplier = 0.3 / (abs(difference));
+                multiplier = 0.1 / (abs(difference));
 
             else if (difference > 4)
-                multiplier = 0.3 / (abs(difference - 8.0));
+                multiplier = 0.1 / (abs(difference - 8.0));
 
             multiplier = multiplier * (250.0 / dist);
         }
     }
     // Bomber can shoot to all sides so no angle is needed
-    clash = (abs(float(expbomber - expChaser)) / (dist)) + (direction * multiplier);
+    clash = (abs(float(expbomber)) / ((dist / 4) + expChaser)) + (direction * multiplier);
 
     if (clash >= 0.95)
     {
@@ -270,7 +256,6 @@ void Simulation::Run(int speed)
         case DefendersWin:
             cout << "Defenders win!" << endl;
 
-            cout << "Attackers win!" << endl;
             cout << "Defenders left: ";
             cout << defenders.size() << endl;
             cout << "Escort left: ";

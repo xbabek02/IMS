@@ -454,14 +454,14 @@ bool Fighter::ShouldTryShooting(float clash)
 {
     if (number_of_battles > 50)
     {
-        if (clash > 0.6)
+        if (clash > 0.4)
             return true;
         else
             return false;
     }
     else
     {
-        if (clash > 0.4)
+        if (clash > 0.3)
             return true;
         else
             return false;
